@@ -123,6 +123,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
   <button class="btn ghost" id="bFile" style="width:100%">MP3 파일 넣기</button>
   <input type="file" id="file" accept="audio/*,.mp3,.m4a" multiple hidden>
   <p class="hint">파일 안에 든 커버 그림과 제목을 읽습니다. 파일은 이 기기를 벗어나지 않습니다.</p>
+  <div class="sep"></div>
+  <h3>내 커버 사진</h3>
+  <div class="field"><input id="imgUrl" placeholder="사진 주소 (https://…)" inputmode="url" autocomplete="off"><button class="btn" id="bImgUrl">넣기</button></div>
+  <div class="field" style="margin-top:8px"><button class="btn ghost" id="bImg" style="flex:1">사진 올리기</button><button class="btn ghost" id="bImgDel" hidden>기본 커버로</button></div>
+  <input type="file" id="img" accept="image/*" hidden>
+  <ul class="hint"><li>어떤 노래든 이 사진을 커버로, 색도 이 사진에서</li><li>바꾸거나 "기본 커버로"를 누르기 전까지 유지</li></ul>
 </section>
 <section class="sheet" id="sList"><div class="grab"></div><div class="lh"><h3>재생 목록</h3><button class="btn ghost" id="bClear">모두 지우기</button></div><ul class="list" id="list"></ul></section>
 <section class="sheet" id="sSave">
@@ -270,8 +276,8 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
   const ink = P[0].lum > 180 ? '#2c3236' : '#edf1f3', tx = lX + iw * 1.02, tR = lX + lW * .965, tw = tR - tx, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
   x.fillStyle = ink; x.globalAlpha = .28; [l1, l2].forEach(ly => x.fillRect(tx, ly, tR - tx, Math.max(1, S * .0016))); x.globalAlpha = 1;
   const tc = (tx + tR) / 2; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tc, l2 - lH * .028);
-  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tc, l2 + lH * .085); x.globalAlpha = 1;
+  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; const tt = fit(x, title || '레코드룸', tw), tL = tc - x.measureText(tt).width / 2; x.fillText(tt, tc, l2 - lH * .028); x.textAlign = 'left';
+  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tR - tL), tL, l2 + lH * .085); x.textAlign = 'center'; x.globalAlpha = 1;
   x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tc, lY + lH * .94); x.globalAlpha = 1;
   x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', tR, lY + lH * .95); x.textAlign = 'left';
   x.restore();
@@ -369,8 +375,27 @@ async function loadCover(t) {
       else { im = await loadImg(`https://i.ytimg.com/vi/${t.id}/hqdefault.jpg`); const h = im.naturalHeight * .75, s = h; cv = { img: im, sx: (im.naturalWidth - s) / 2, sy: im.naturalHeight * .125, sw: s, sh: s }; }   // 위아래 검은 띠를 뺀 가운데
     } else if (t.cover) { const im = await loadImg(t.cover); const s = Math.min(im.naturalWidth, im.naturalHeight); cv = { img: im, sx: (im.naturalWidth - s) / 2, sy: (im.naturalHeight - s) / 2, sw: s, sh: s }; }
   } catch (e) { cv = null; }
-  if (items[cur] !== t) return; cover = cv; if (cv) applyPalette(extractPalette(cv));
+  if (items[cur] !== t) return; cover = cv; if (cv && !myCv) applyPalette(extractPalette(cv));
 }
+
+/* 내 커버 사진 — 노래와 상관없이 고정, 바꾸거나 지우기 전까지 기억 */
+let myCv = null; const pic = () => myCv || cover;
+function squareCv(im) { const s = Math.min(im.naturalWidth, im.naturalHeight); return { img: im, sx: (im.naturalWidth - s) / 2, sy: (im.naturalHeight - s) / 2, sw: s, sh: s }; }
+async function setMyCover(src, keep) {
+  const im = await loadImg(src), c = squareCv(im), n = Math.min(720, c.sw), k = document.createElement('canvas'); k.width = k.height = n;
+  k.getContext('2d').drawImage(im, c.sx, c.sy, c.sw, c.sh, 0, 0, n, n);
+  const d = k.toDataURL('image/jpeg', .86);          // 다른 주소 그림은 여기서 막히면(교차 출처) 오류로 떨어진다
+  myCv = squareCv(await loadImg(d)); applyPalette(extractPalette(myCv)); $('bImgDel').hidden = false;
+  if (keep) { store.set('mycover', d); if (store.get('mycover') !== d) toast('저장 공간이 부족해 다음에 열면 사라집니다'); }
+}
+function clearMyCover() { myCv = null; store.set('mycover', null); $('bImgDel').hidden = true; if (cover) applyPalette(extractPalette(cover)); toast('기본 커버로 돌아갑니다'); }
+$('bImg').onclick = () => $('img').click();
+$('img').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const r = new FileReader();
+  r.onload = () => setMyCover(r.result, true).then(() => { closeSheets(); toast('커버 사진을 바꿨습니다'); }, () => toast('이 파일은 사진으로 열 수 없습니다')); r.readAsDataURL(f); };
+$('bImgUrl').onclick = () => { const u = $('imgUrl').value.trim(); if (!/^https?:\/\//.test(u)) { toast('https:// 로 시작하는 사진 주소를 넣어 주세요'); return; }
+  setMyCover(u, true).then(() => { $('imgUrl').value = ''; closeSheets(); toast('커버 사진을 바꿨습니다'); }, () => toast('이 주소의 사진은 가져올 수 없습니다 — 사진을 저장해 "사진 올리기"로 넣어 주세요', 3600)); };
+$('bImgDel').onclick = clearMyCover;
+{ const d = store.get('mycover', null); if (d) setMyCover(d, false).catch(() => store.set('mycover', null)); }
 
 /* 유튜브 주소 · 재생목록 */
 const vidOf = u => (u.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([\w-]{11})/) || [])[1];
@@ -447,7 +472,7 @@ function frame(now) {
   ang += spin * dt * Math.PI * 2 * .3;
   const dpr = Math.min(2, devicePixelRatio || 1), S = Math.round(art.clientWidth * dpr); if (art.width !== S) { art.width = art.height = S; }
   ax.clearRect(0, 0, S, S); const t = items[cur], d = E.dur(), tm = E.time(), pr = d ? Math.min(1, tm / d) : 0;
-  if (mode === 'cover') drawCover(ax, S, cover); else if (mode === 'lp') drawLP(ax, S, cover, ang, arm); else drawTape(ax, S, cover, ang * 1.6, pr, t && t.title, t && t.artist);
+  if (mode === 'cover') drawCover(ax, S, pic()); else if (mode === 'lp') drawLP(ax, S, pic(), ang, arm); else drawTape(ax, S, pic(), ang * 1.6, pr, t && t.title, t && t.artist);
   if (!dragging && cur >= 0) { seek.value = Math.round(pr * 1000); seek.style.setProperty('--p', pr * 100 + '%'); $('tCur').textContent = fmtT(tm); $('tDur').textContent = fmtT(d); }
   requestAnimationFrame(frame);
 }
@@ -465,7 +490,7 @@ function drawCard(x, W, H, ph) {                  // ph: 0~1 한 바퀴
   p.slice(1).forEach((c, i) => { const a = ph * Math.PI * 2 + i * 1.7, cx = W * (.5 + .38 * Math.cos(a + i)), cy = H * (.45 + .32 * Math.sin(a * (i % 2 ? 1 : -1) + i * 2)), r = Math.max(W, H) * .55; const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, c.hex + '66'); g.addColorStop(1, c.hex + '00'); x.fillStyle = g; x.fillRect(0, 0, W, H); });
   const S = W * .86, oX = (W - S) / 2, oY = H * .1, t = items[cur], d = E.dur(), pr = d ? Math.min(1, E.time() / d) : .35;
   x.save(); x.translate(oX, oY);
-  if (mode === 'cover') drawCover(x, S, cover); else if (mode === 'lp') drawLP(x, S, cover, ph * Math.PI * 2, 1); else drawTape(x, S, cover, ph * Math.PI * 4, pr, t && t.title, t && t.artist);
+  if (mode === 'cover') drawCover(x, S, pic()); else if (mode === 'lp') drawLP(x, S, pic(), ph * Math.PI * 2, 1); else drawTape(x, S, pic(), ph * Math.PI * 4, pr, t && t.title, t && t.artist);
   x.restore();
   const mx = W * .08, ty = oY + S + H * .06; x.fillStyle = fg; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
   x.font = `700 ${W * .06}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, (t && t.title) || '', W - mx * 2), mx, ty);
