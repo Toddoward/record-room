@@ -273,12 +273,12 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
   const fx0 = lX + iw * .45, fx1 = lX + iw * 1.05, bT = .37;
   [[bT, .3], [.68, .06], [.75, .065]].forEach(([v, h], k) => { const c = acc3[k].hex, g = x.createLinearGradient(fx0, 0, fx1, 0); g.addColorStop(0, c + '00'); g.addColorStop(1, c); x.fillStyle = g; x.fillRect(fx0, lY + lH * v, lX + lW - fx0, lH * h); });
   // 띠 위 글자 칸을 줄 두 개로 3등분 — 제목은 둘째 줄 위에(윗줄을 넘어가도 된다), 가수는 그 줄 바로 아래. 글자는 가운데 정렬
-  const ink = P[0].lum > 180 ? '#2c3236' : '#edf1f3', tx = lX + iw * 1.02, tR = lX + lW * .965, tw = tR - tx, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
+  const ink = P[0].lum > 180 ? '#2c3236' : '#edf1f3', tx = lX + iw * 1.02, tR = lX + lW * .965, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
   x.fillStyle = ink; x.globalAlpha = .28; [l1, l2].forEach(ly => x.fillRect(tx, ly, tR - tx, Math.max(1, S * .0016))); x.globalAlpha = 1;
-  const tc = (tx + tR) / 2; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
-  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; const tt = fit(x, title || '레코드룸', tw), tL = tc - x.measureText(tt).width / 2; x.fillText(tt, tc, l2 - lH * .028); x.textAlign = 'left';
-  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tR - tL), tL, l2 + lH * .085); x.textAlign = 'center'; x.globalAlpha = 1;
-  x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tc, lY + lH * .94); x.globalAlpha = 1;
+  const tw = tR - tx; x.textAlign = 'left'; x.textBaseline = 'alphabetic';   // 제목·가수 = 줄 시작점에 왼쪽 정렬
+  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, l2 - lH * .028);
+  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, l2 + lH * .085); x.globalAlpha = 1;
+  x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.textAlign = 'center'; x.fillText('Normal Bias 120μs EQ', X + W / 2, lY + lH * .94); x.globalAlpha = 1;   // 카세트 가운데
   x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', tR, lY + lH * .95); x.textAlign = 'left';
   x.restore();
   // 창 — 검은 판 + 가운데 투명창으로 테이프 두께가 보인다
