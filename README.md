@@ -9,16 +9,18 @@ A one-page music player for when the usual streaming app feels too familiar. Bui
 
 **▶ Open → https://toddoward.github.io/record-room/**
 
+<img src="qr.png" alt="QR code for https://toddoward.github.io/record-room/" width="140">
+
 <table>
   <tr>
-    <th>Cover</th>
-    <th>LP</th>
-    <th>Cassette</th>
+    <th width="33%">Cover</th>
+    <th width="33%">LP</th>
+    <th width="33%">Cassette</th>
   </tr>
   <tr>
-    <td><img src="assets/cover.webp" alt="Cover screen" width="240"></td>
-    <td><img src="assets/lp.webp" alt="LP record screen" width="240"></td>
-    <td><img src="assets/cassette.webp" alt="Cassette tape screen" width="240"></td>
+    <td width="33%"><img src="assets/cover.webp" alt="Cover screen" width="100%"></td>
+    <td width="33%"><img src="assets/lp.webp" alt="LP record screen" width="100%"></td>
+    <td width="33%"><img src="assets/cassette.webp" alt="Cassette tape screen" width="100%"></td>
   </tr>
 </table>
 
@@ -68,14 +70,12 @@ A one-page music player for when the usual streaming app feels too familiar. Bui
 
 ## Quick start
 
-1. Open **https://toddoward.github.io/record-room/** (or scan the QR below with your phone)
+1. Open **https://toddoward.github.io/record-room/** (or scan the QR at the top with your phone)
 2. Tap **＋** and add a YouTube link, a playlist link, or MP3 files
 3. Pick **커버 / LP / 테이프** (Cover / LP / Tape) at the top, and optionally set **내 커버 사진** (My cover photo) in the ＋ panel
 4. Tap **움직이는 카드 저장** (Save moving card) to keep the moment
 
 > The interface is in Korean; labels above are shown with their English meaning.
-
-<img src="qr.png" alt="QR code for https://toddoward.github.io/record-room/" width="160">
 
 ## Good to know
 
