@@ -63,6 +63,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .sheet h3{font-size:17px;margin-bottom:12px}
 .lh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.lh h3{margin:0}.lh .btn{padding:8px 14px;font-size:14px}
 .sheet p.hint{font-size:13px;color:var(--sub);line-height:1.6;margin-top:8px}
+.sheet ul.hint{font-size:13px;color:var(--sub);line-height:1.7;margin-top:10px;padding-left:1.2em}.sheet ul.hint b{color:var(--fg);font-weight:600}
 .field{display:flex;gap:8px}
 .field input{flex:1;min-width:0;border:0;border-radius:12px;padding:13px 14px;font:inherit;font-size:15px;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);outline:none}
 .field input::placeholder{color:var(--sub)}
@@ -117,7 +118,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 <section class="sheet" id="sAdd">
   <div class="grab"></div><h3>노래 넣기</h3>
   <div class="field"><input id="url" placeholder="유튜브 영상·재생목록 주소" inputmode="url" autocomplete="off"><button class="btn" id="bUrl">넣기</button></div>
-  <p class="hint">재생목록 주소(list=…)를 넣으면 통째로 들어갑니다. 커버는 영상 썸네일, 색은 썸네일에서 뽑습니다. 다른 사이트 재생이 막힌 영상은 건너뜁니다 — 특히 채널 이름이 "… - Topic"인 유튜브 뮤직 자동 음원은 몇 초 재생 뒤 멈추는 경우가 많아, 공식 뮤직비디오나 다른 업로드를 넣는 게 좋습니다.</p>
+  <ul class="hint"><li>재생목록 주소(list=…) → 통째로 추가</li><li>커버·색 → 영상 썸네일에서</li><li>다른 사이트 재생 금지 영상 → 건너뜀</li><li><b>"… - Topic"</b> 자동 음원 → 몇 초 뒤 멈춤, 공식 MV 권장</li></ul>
   <div class="sep"></div>
   <button class="btn ghost" id="bFile" style="width:100%">MP3 파일 넣기</button>
   <input type="file" id="file" accept="audio/*,.mp3,.m4a" multiple hidden>
@@ -279,13 +280,17 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
   x.save(); rr(x, lX, lY, lW, lH, S * .01); x.clip(); x.fillStyle = base; x.fillRect(lX, lY, lW, lH);
   const iw = lW * .3; drawImg(x, cv, lX, lY, Math.max(iw, lH), lH);   // 사진 → 스티커 색으로 번짐
   const fd = x.createLinearGradient(lX + iw * .45, 0, lX + iw * 1.05, 0); fd.addColorStop(0, base + '00'); fd.addColorStop(1, base); x.fillStyle = fd; x.fillRect(lX + iw * .45, lY, Math.max(iw, lH), lH);
-  const sw = lW * .032, st = lX + lW * .86; acc3.forEach((c, k) => { const sx = st + k * sw; x.strokeStyle = c.hex; x.lineWidth = sw; x.lineCap = 'butt'; x.beginPath(); x.moveTo(sx - lH * .22, lY - 2); x.lineTo(sx, lY + lH * .22); x.lineTo(sx, lY + lH + 2); x.stroke(); });
-  const ink = '#2a2a30', tx = lX + iw * 1.02, tw = st - lH * .22 - sw * .5 - tx - lW * .03;
-  x.fillStyle = ink; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, lY + lH * .2);
-  x.globalAlpha = .7; x.font = `650 ${H * .052}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, lY + lH * .31); x.globalAlpha = 1;
+  // 레트로 띠 — 창 뒤를 가로지르는 굵은 띠 하나 + 얇은 띠 둘, 사진 쪽에서 번져 나온다
+  const fx0 = lX + iw * .45, fx1 = lX + iw * 1.05, bT = .37;
+  [[bT, .3], [.68, .06], [.75, .065]].forEach(([v, h], k) => { const c = acc3[k].hex, g = x.createLinearGradient(fx0, 0, fx1, 0); g.addColorStop(0, c + '00'); g.addColorStop(1, c); x.fillStyle = g; x.fillRect(fx0, lY + lH * v, lX + lW - fx0, lH * h); });
+  // 띠 위 글자 칸을 줄 두 개로 3등분 — 맨 윗칸은 여백, 제목은 둘째 줄 위에, 가수는 띠 위에 앉는다
+  const ink = '#2a2a30', tx = lX + iw * 1.02, tR = lX + lW * .965, tw = tR - tx, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
+  x.fillStyle = ink; x.globalAlpha = .28; [l1, l2].forEach(ly => x.fillRect(tx, ly, tR - tx, Math.max(1, S * .0016))); x.globalAlpha = 1;
+  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.font = `700 ${H * .062}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, l2 - lH * .028);
+  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, lY + lH * (bT - .028)); x.globalAlpha = 1;
   x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tx, lY + lH * .94); x.globalAlpha = 1;
-  x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', st - sw, lY + lH * .95); x.textAlign = 'left';
+  x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', tR, lY + lH * .95); x.textAlign = 'left';
   x.restore();
   // 창 — 검은 판 + 가운데 투명창으로 테이프 두께가 보인다
   const wW = lW * .56, wH = lH * .4, wX = lX + (lW - wW) / 2, wY = lY + lH * .4, ry = wY + wH / 2, r1 = wX + wW * .19, r2 = wX + wW * .81;

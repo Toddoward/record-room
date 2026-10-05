@@ -1,7 +1,7 @@
 # 레코드룸 — 역설계 제작 프롬프트
 
 > 지금 공개된 레코드룸(https://toddoward.github.io/record-room/)의 소스와 디자인에서 거꾸로 뽑아낸 **제작 지시서**다.
-> 아래 "프롬프트" 블록 전체를 코딩 에이전트(Claude Code · Google Antigravity 등)에 그대로 넣으면 같은 앱을 처음부터 만들고, GitHub Pages로 공개하고, README에 설명·주소·QR을 남긴다.
+> 짧은 평문판은 [`PROMPT-BRIEF.md`](PROMPT-BRIEF.md). 아래 "프롬프트" 블록 전체를 코딩 에이전트(Claude Code · Google Antigravity 등)에 그대로 넣으면 같은 앱을 처음부터 만들고, GitHub Pages로 공개하고, README에 설명·주소·QR을 남긴다.
 > 수치는 모두 실제 코드 값이다. `S` = 그림 캔버스 한 변(정사각) 길이.
 
 ---
@@ -107,9 +107,12 @@
 - 몸체: 무광 #1b1b20, soft(0.6). 가로 결 = W·0.0125 간격으로 굵기 W·0.0038 흰색 3.5% 줄. 안쪽 얇은 테 흰색 6%.
 - 스티커: x W·0.055, y H·0.1, 폭 W·0.89, 높이 H·0.6, 모서리 S·0.01, 종이색(3장 6).
   왼쪽 30%에 커버 사진 → 사진 폭의 45~105% 구간에서 종이색으로 번진다.
-  오른쪽 86%부터 띠 3색(각 폭 = 스티커 폭 3.2%): 위 가장자리에서 아래로 사선(스티커 높이 22%)으로 내려온 뒤 수직으로 끝까지 — 레트로 띠.
-  글자(#2a2a30): 제목 700, 높이 H·0.072 · 가수 650, H·0.052, 70% 불투명 · 아래 "Normal Bias 120μs EQ" 600 · 오른쪽 아래 "A|60" 800.
-  제목·가수는 띠가 시작되기 전까지만, 넘치면 말줄임.
+  레트로 띠 3색 = 창 뒤를 스티커 오른쪽 끝까지 가로지르는 가로 띠: 굵은 띠(스티커 높이 37~67%) · 얇은 띠(68~74%) · 얇은 띠(75~81.5%).
+  왼쪽 끝은 사진이 번지는 같은 구간(사진 폭 45~105%)에서 투명 → 불투명으로 번져 나온다.
+  글자 칸(스티커 위 가장자리 ~ 띠 시작 37%)을 가는 줄 두 개(글자색 28% 불투명, 굵기 S·0.0016)로 3등분:
+  맨 윗칸은 여백, 제목은 둘째 줄 위에, 가수는 띠 바로 위에 앉는다(글자 바닥선 = 줄 − 스티커 높이 2.8%).
+  글자(#2a2a30): 제목 700, H·0.062 · 가수 600, H·0.04, 62% 불투명(크기·굵기·농도로 위계) · 아래 "Normal Bias 120μs EQ" 600, H·0.042 · 오른쪽 아래 "A|60" 800, H·0.08.
+  글자와 줄은 사진 폭 102% 지점부터 스티커 폭 96.5%까지, 넘치면 말줄임.
 - 창: 스티커 가운데, 폭 56% · 높이 40%, 위치 스티커 높이 40%부터. 검은 #0c0c0e, soft(0.35).
   가운데 투명창(창 폭 38%)으로 테이프 뭉치가 보인다: 갈색 #2b1f18 원 두 개, 반지름이 재생 진행에 따라
   왼쪽은 작아지고(최대→최소) 오른쪽은 커진다(최소 = 창 높이 26%, 최대 = 창 폭 30%).
@@ -161,19 +164,22 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 7. 배포
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1) 새 폴더 record-room에 index.html · README.md · qr.png · .gitignore · .gitattributes(* text=auto eol=lf)
-2) git init -b main → 커밋 → gh repo create record-room --public --source . --push --description "내 노래를 앨범 커버 · LP · 카세트로 — 한 페이지 음악 플레이어"
-3) GitHub Pages: gh api -X POST repos/{owner}/record-room/pages -f "source[branch]=main" -f "source[path]=/"
-4) https://{owner}.github.io/record-room/ 이 200을 돌려줄 때까지 10초마다 확인(최대 4분)
-5) QR: segno로 그 주소를 오류 정정 M으로 만들고, 800×800 흰 바탕 가운데 651×651 코드(사방 여백 74px, 순수 흑백)로 qr.png 저장.
+Pages 주소는 계정 이름과 저장소 이름으로 미리 정해진다. 그래서 QR과 README를 먼저 만들고, 한 번에 올린다(열릴 때까지 기다리지 않는다).
+1) {owner} = gh api user -q .login → 배포 주소 = https://{owner 소문자}.github.io/record-room/
+2) QR: segno로 그 주소를 오류 정정 M으로 만들고, 800×800 흰 바탕 가운데 651×651 코드(사방 여백 74px, 순수 흑백)로 qr.png 저장.
    zxing-cpp로 다시 읽어 주소가 그대로 나오는지 확인한다.
-6) README.md에 반드시 함께 넣는다:
+3) README.md에 반드시 함께 넣는다(아래 목록).
+4) 새 폴더 record-room에 index.html · README.md · qr.png · .gitignore · .gitattributes(* text=auto eol=lf)
+   → git init -b main → 커밋 한 번 → gh repo create record-room --public --source . --push --description "내 노래를 앨범 커버 · LP · 카세트로 — 한 페이지 음악 플레이어"
+5) GitHub Pages: gh api -X POST repos/{owner}/record-room/pages -f "source[branch]=main" -f "source[path]=/"
+6) 끝. 공개 주소와 QR을 화면에 크게 띄우고 "첫 공개는 1~2분 뒤 열립니다"라고 알린다.
+
+[README.md 내용]
    - 제목 "레코드룸"과 한 줄 소개
    - 배포 주소 링크 https://{owner}.github.io/record-room/ 와 그 QR 이미지 ![레코드룸 QR](qr.png) (폭 200px 정도)
    - 저장소 설명: 무엇을 하는 앱인지, 할 수 있는 것(넣기·세 화면·재생 순서와 반복·소리·움직이는 카드 저장과 공유)
    - 알아 둘 것: 파일은 기기 밖으로 나가지 않음, 다른 사이트 재생이 막힌 영상(특히 "- Topic" 자동 음원)은 건너뜀, file://로 열면 유튜브가 막음, 아이폰은 GIF로 저장
    - 만든 계기: 색 뽑기는 trackpic(https://github.com/pic-kn/trackpic)과 같은 절차를 다시 작성, LP는 캔따개 플레이리스트(https://github.com/dearlovedive/playlist)에서 영감
-7) qr.png와 README를 커밋·푸시하고, 마지막에 공개 주소와 QR을 화면에 크게 띄운다.
 ```
 
 ---
