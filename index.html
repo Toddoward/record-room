@@ -52,7 +52,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .ctrls .big:active{transform:scale(.93)}
 .ctrls .big svg{width:30px;height:30px}
 .ctrls .mid svg{width:30px;height:30px}
-.row{display:flex;gap:10px;margin-top:20px}
+.row{display:flex;gap:10px;margin-top:16px}
+.vol{display:flex;align-items:center;gap:12px;margin-top:14px;color:var(--sub)}.vol svg{width:20px;height:20px;flex:none}.vol input{height:18px}
 .chip{flex:1;border-radius:14px;padding:13px 10px;font-size:14px;font-weight:600;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);transition:transform .15s}
 .chip:active{transform:scale(.97)}
 /* 아래에서 올라오는 판 */
@@ -60,6 +61,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .sheet.open{transform:none}
 .sheet .grab{width:40px;height:5px;border-radius:5px;background:var(--track);margin:0 auto 14px}
 .sheet h3{font-size:17px;margin-bottom:12px}
+.lh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.lh h3{margin:0}.lh .btn{padding:8px 14px;font-size:14px}
 .sheet p.hint{font-size:13px;color:var(--sub);line-height:1.6;margin-top:8px}
 .field{display:flex;gap:8px}
 .field input{flex:1;min-width:0;border:0;border-radius:12px;padding:13px 14px;font:inherit;font-size:15px;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);outline:none}
@@ -98,7 +100,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
     <button class="ib" id="bAdd" aria-label="노래 넣기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   </div>
   <div class="stage"><canvas id="art"></canvas></div>
-  <div class="meta"><div class="title" id="tTitle">노래를 넣어 주세요</div><div class="artist" id="tArtist">오른쪽 위 ＋ — 유튜브 주소 · 재생목록 · MP3</div></div>
+  <div class="meta"><div class="title" id="tTitle">레코드룸</div><div class="artist" id="tArtist">오른쪽 위 ＋ 버튼 또는 재생 버튼</div></div>
   <div class="seek"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="재생 위치"><div class="time"><span id="tCur">0:00</span><span id="tDur">0:00</span></div></div>
   <div class="ctrls">
     <button class="ib" id="bOrder" aria-label="재생 순서"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
@@ -107,6 +109,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
     <button class="ib mid" id="bNext" aria-label="다음"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
     <button class="ib" id="bRepeat" aria-label="반복"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span class="one" id="iOne" hidden>1</span></button>
   </div>
+  <div class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg><input type="range" id="vol" min="0" max="100" value="50" aria-label="소리 크기"></div>
   <div class="row"><button class="chip" id="bShuffleNow">지금 섞기</button><button class="chip" id="bSave">움직이는 카드 저장</button></div>
 </main>
 
@@ -114,13 +117,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 <section class="sheet" id="sAdd">
   <div class="grab"></div><h3>노래 넣기</h3>
   <div class="field"><input id="url" placeholder="유튜브 영상·재생목록 주소" inputmode="url" autocomplete="off"><button class="btn" id="bUrl">넣기</button></div>
-  <p class="hint">재생목록 주소(list=…)를 넣으면 통째로 들어갑니다. 커버는 영상 썸네일, 색은 썸네일에서 뽑습니다. 다른 사이트 재생이 막힌 영상은 건너뜁니다.</p>
+  <p class="hint">재생목록 주소(list=…)를 넣으면 통째로 들어갑니다. 커버는 영상 썸네일, 색은 썸네일에서 뽑습니다. 다른 사이트 재생이 막힌 영상은 건너뜁니다 — 특히 채널 이름이 "… - Topic"인 유튜브 뮤직 자동 음원은 몇 초 재생 뒤 멈추는 경우가 많아, 공식 뮤직비디오나 다른 업로드를 넣는 게 좋습니다.</p>
   <div class="sep"></div>
   <button class="btn ghost" id="bFile" style="width:100%">MP3 파일 넣기</button>
   <input type="file" id="file" accept="audio/*,.mp3,.m4a" multiple hidden>
   <p class="hint">파일 안에 든 커버 그림과 제목을 읽습니다. 파일은 이 기기를 벗어나지 않습니다.</p>
 </section>
-<section class="sheet" id="sList"><div class="grab"></div><h3>재생 목록</h3><ul class="list" id="list"></ul></section>
+<section class="sheet" id="sList"><div class="grab"></div><div class="lh"><h3>재생 목록</h3><button class="btn ghost" id="bClear">모두 지우기</button></div><ul class="list" id="list"></ul></section>
 <section class="sheet" id="sSave">
   <div class="grab"></div><h3>움직이는 카드</h3>
   <div class="fmt" id="fmt"><button data-f="webp">WebP · 고화질 저용량</button><button data-f="gif">GIF</button></div>
@@ -178,9 +181,26 @@ function extractPalette(src) {               // src: {img, sx, sy, sw, sh}
   let p; for (const m of [25, 15, 8, 5, 3]) { p = pick(m); if (p.length >= 5) break; }
   const base = p[0], { h, s, l } = rgb2hsl(base.r, base.g, base.b);
   while (p.length < 5) { const [r, g, b] = hsl2rgb(h, Math.max(.1, s), Math.max(.1, Math.min(.9, l + p.length * .16 - .32))); p.push({ r, g, b, h, s, lum: lumOf(r, g, b) }); }
-  return p.sort((a, b) => a.lum - b.lum).slice(0, 5).map(c => ({ ...c, hex: hex(c.r, c.g, c.b) }));
+  const out = p.sort((a, b) => a.lum - b.lum).slice(0, 5).map(c => ({ ...c, hex: hex(c.r, c.g, c.b) }));
+  out.accents = accentsOf(raw, dom); out.paper = paperOf(raw[0]);
+  return out;
 }
 let PAL = null;
+/* 카세트 스티커용 — 사진에서 채도 있는 색을 색상이 겹치지 않게 3개, 모자라면 주색 옆 색상으로 채운다. 레트로 띠답게 채도·밝기를 맞춘다 */
+function accentsOf(raw, dom) {
+  const hd = (a, b) => { const v = Math.abs(a - b); return Math.min(v, 1 - v); };
+  const cand = raw.map(([r, g, b]) => ({ r, g, b, ...rgb2hsl(r, g, b) })).filter(c => c.s >= .28 && c.l >= .22 && c.l <= .82);
+  const out = []; for (const c of cand) if (out.every(o => hd(o.h, c.h) >= .045)) { out.push(c); if (out.length === 3) break; }
+  if (!out.length) {                 // 흑백에 가까운 사진 — 없는 색을 지어내지 않고 무채색 띠
+    return [.32, .55, .76].map(l => { const v = Math.round(l * 255); return { r: v, g: v, b: v, hex: hex(v, v, v) }; });
+  }
+  const base = out[0];
+  for (let k = 1; out.length < 3; k++) out.push({ h: (base.h + (k % 2 ? 1 : -1) * .07 * Math.ceil(k / 2) + 1) % 1, s: base.s, l: .6 });
+  return out.map(c => { const s = Math.min(.78, Math.max(.5, c.s)), l = Math.min(.66, Math.max(.5, c.l)), [r, g, b] = hsl2rgb(c.h, s, l); return { r, g, b, hex: hex(r, g, b) }; });
+}
+function paperOf(rgb) {            // 주색 색상을 아주 옅게 띤 크림색 종이
+  const { h, s } = rgb2hsl(...rgb), [r, g, b] = hsl2rgb(h, Math.min(.32, Math.max(.12, s * .5)), .93); return { r, g, b, hex: hex(r, g, b), lum: lumOf(r, g, b) };
+}
 const relLum = (r, g, b) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
 function contrastOn(c, bg) {                 // 강조색이 배경 위에서 3:1 이상 보이도록 밝기만 옮긴다 (색상은 그대로)
   const L2 = relLum(bg.r, bg.g, bg.b), ratio = (r, g, b) => { const L1 = relLum(r, g, b); return (Math.max(L1, L2) + .05) / (Math.min(L1, L2) + .05); };
@@ -216,7 +236,7 @@ const mix = (a, b, t) => hex(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b +
 function soft(x, S, k = 1) { x.shadowColor = `rgba(0,0,0,${.22 * k})`; x.shadowBlur = S * .035 * k; x.shadowOffsetY = S * .01 * k; x.shadowOffsetX = 0; }
 function circ(x, cx, cy, r) { x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); }
 function drawLP(x, S, cv, ang, arm) {
-  const R = S * .38, cx = S * .5, cy = S * .49, lab = R * .36;
+  const R = S * .38, cx = S * .5, cy = S * .49, lab = R * .5;
   x.save(); x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = S * .06; x.shadowOffsetY = S * .02; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fillStyle = '#0d0d0f'; x.fill(); x.restore();
   const g = x.createRadialGradient(cx, cy, lab, cx, cy, R); g.addColorStop(0, '#1b1b1e'); g.addColorStop(.6, '#121214'); g.addColorStop(1, '#0a0a0b'); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fill();
   x.lineWidth = Math.max(.5, S * .0012);      // 소리골
@@ -252,18 +272,18 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
   const P = PAL || [{ hex: '#1f2329', r: 31, g: 35, b: 41, lum: 34 }, { hex: '#33414f' }, { hex: '#4f677d' }, { hex: '#7f98ae' }, { hex: '#e9e6dc', r: 233, g: 230, b: 220, lum: 230 }];
   // 몸체 — 무광, 가는 가로줄 결
   x.save(); soft(x, S, .6); rr(x, X, Y, W, H, rad); x.fillStyle = '#1b1b20'; x.fill(); x.restore();
-  x.save(); rr(x, X, Y, W, H, rad); x.clip(); x.fillStyle = 'rgba(255,255,255,.022)'; for (let yy = Y; yy < Y + H; yy += Math.max(2, S * .0045)) x.fillRect(X, yy, W, Math.max(1, S * .0012)); x.restore();
+  x.save(); rr(x, X, Y, W, H, rad); x.clip(); x.fillStyle = 'rgba(255,255,255,.035)'; for (let yy = Y + W * .006; yy < Y + H; yy += W * .0125) x.fillRect(X, yy, W, Math.max(1.5, W * .0038)); x.restore();
   x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; rr(x, X + S * .004, Y + S * .004, W - S * .008, H - S * .008, rad * .8); x.stroke();
   // 스티커
-  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, cream = P[4].lum > 170 ? P[4] : { hex: '#efece2', r: 239, g: 236, b: 226, lum: 236 }, base = mix(cream, { r: 255, g: 252, b: 240 }, .35);
+  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, base = (PAL && PAL.paper ? PAL.paper.hex : '#f3efe4'), acc3 = PAL && PAL.accents ? PAL.accents : [{ hex: '#9b6bb3' }, { hex: '#e2708f' }, { hex: '#ef9a62' }];
   x.save(); rr(x, lX, lY, lW, lH, S * .01); x.clip(); x.fillStyle = base; x.fillRect(lX, lY, lW, lH);
   const iw = lW * .3; drawImg(x, cv, lX, lY, Math.max(iw, lH), lH);   // 사진 → 스티커 색으로 번짐
   const fd = x.createLinearGradient(lX + iw * .45, 0, lX + iw * 1.05, 0); fd.addColorStop(0, base + '00'); fd.addColorStop(1, base); x.fillStyle = fd; x.fillRect(lX + iw * .45, lY, Math.max(iw, lH), lH);
-  const sw = lW * .032, st = lX + lW * .86; [P[1], P[2], P[3]].forEach((c, k) => { const sx = st + k * sw; x.strokeStyle = c.hex; x.lineWidth = sw; x.lineCap = 'butt'; x.beginPath(); x.moveTo(sx - lH * .22, lY - 2); x.lineTo(sx, lY + lH * .22); x.lineTo(sx, lY + lH + 2); x.stroke(); });
+  const sw = lW * .032, st = lX + lW * .86; acc3.forEach((c, k) => { const sx = st + k * sw; x.strokeStyle = c.hex; x.lineWidth = sw; x.lineCap = 'butt'; x.beginPath(); x.moveTo(sx - lH * .22, lY - 2); x.lineTo(sx, lY + lH * .22); x.lineTo(sx, lY + lH + 2); x.stroke(); });
   const ink = '#2a2a30', tx = lX + iw * 1.02, tw = st - lH * .22 - sw * .5 - tx - lW * .03;
   x.fillStyle = ink; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
   x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, lY + lH * .2);
-  x.globalAlpha = .62; x.font = `500 ${H * .05}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, lY + lH * .31); x.globalAlpha = 1;
+  x.globalAlpha = .7; x.font = `650 ${H * .052}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, lY + lH * .31); x.globalAlpha = 1;
   x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tx, lY + lH * .94); x.globalAlpha = 1;
   x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', st - sw, lY + lH * .95); x.textAlign = 'left';
   x.restore();
@@ -279,8 +299,12 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
     for (let k = 0; k < 6; k++) { x.rotate(Math.PI / 3); rr(x, wH * .2, -wH * .045, wH * .14, wH * .09, wH * .02); x.fill(); } circ(x, 0, 0, wH * .09); x.fillStyle = '#0c0c0e'; x.fill(); x.restore(); });
   // 아래 사다리꼴 — 결 + 구동 구멍 + 나사
   const tY = Y + H * .76; x.save(); x.beginPath(); x.moveTo(X + W * .17, Y + H); x.lineTo(X + W * .22, tY); x.lineTo(X + W * .78, tY); x.lineTo(X + W * .83, Y + H); x.closePath(); x.fillStyle = '#16161a'; x.fill(); x.clip();
-  x.fillStyle = 'rgba(255,255,255,.035)'; for (let yy = tY; yy < Y + H; yy += Math.max(2, S * .005)) x.fillRect(X, yy, W, Math.max(1, S * .0012)); x.restore();
-  [.3, .4, .6, .7].forEach(u => { circ(x, X + W * u, Y + H * .9, W * .016); x.fillStyle = '#050506'; x.fill(); circ(x, X + W * u - W * .004, Y + H * .893, W * .006); x.fillStyle = 'rgba(255,255,255,.55)'; x.fill(); });
+  x.fillStyle = 'rgba(255,255,255,.045)'; for (let yy = tY + W * .006; yy < Y + H; yy += W * .0125) x.fillRect(X, yy, W, Math.max(1.5, W * .0038)); x.restore();
+  const holeBg = PAL ? PAL[0].hex : '#1f2329';
+  [[.27, .948, .023], [.365, .925, .017], [.635, .925, .017], [.73, .948, .023]].forEach(([u, v, r]) => { const hx = X + W * u, hy = Y + H * v, hr = W * r;
+    circ(x, hx, hy, hr); x.fillStyle = holeBg; x.fill();                                                   // 뒤가 보인다
+    x.save(); circ(x, hx, hy, hr); x.clip(); x.strokeStyle = 'rgba(0,0,0,.55)'; x.lineWidth = hr * .55; circ(x, hx, hy + hr * .35, hr * 1.15); x.stroke(); x.restore();   // 위쪽 안벽 그늘
+    x.strokeStyle = 'rgba(255,255,255,.10)'; x.lineWidth = Math.max(1, hr * .12); x.beginPath(); x.arc(hx, hy, hr, .15 * Math.PI, .85 * Math.PI); x.stroke(); });   // 아래 모서리
   [[.035, .07], [.965, .07], [.035, .93], [.965, .93], [.5, .815]].forEach(([u, v]) => { const sx = X + W * u, sy = Y + H * v, sr = W * .014; circ(x, sx, sy, sr); x.fillStyle = '#2c2c32'; x.fill(); x.strokeStyle = '#08080a'; x.lineWidth = sr * .28; x.beginPath(); x.moveTo(sx - sr * .55, sy); x.lineTo(sx + sr * .55, sy); x.moveTo(sx, sy - sr * .55); x.lineTo(sx, sy + sr * .55); x.stroke(); });
 }
 
@@ -300,20 +324,23 @@ const E = {
   time() { return kind === 'yt' ? (yt && yt.getCurrentTime ? yt.getCurrentTime() : 0) : A.currentTime; },
   dur() { return kind === 'yt' ? (yt && yt.getDuration ? yt.getDuration() : 0) : (isFinite(A.duration) ? A.duration : 0); },
 };
+let vol = store.get('vol', 50);
+function setVol(v) { vol = v; A.volume = v / 100; if (ytReady) yt.setVolume(v); const el = $('vol'); el.value = v; el.style.setProperty('--p', v + '%'); store.set('vol', v); }
+$('vol').addEventListener('input', e => setVol(+e.target.value));
 A.addEventListener('play', () => setPlaying(true)); A.addEventListener('pause', () => setPlaying(false)); A.addEventListener('ended', ended);
 function setPlaying(v) { playing = v; $('iPlay').innerHTML = v ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; if ('mediaSession' in navigator) navigator.mediaSession.playbackState = v ? 'playing' : 'paused'; }
 
 window.onYouTubeIframeAPIReady = () => {
   yt = new YT.Player('yt', { width: 240, height: 135, playerVars: { playsinline: 1, controls: 0, rel: 0, disablekb: 1, origin: location.protocol.startsWith('http') ? location.origin : undefined },
     events: {
-      onReady() { ytReady = true; if (pendingYT) { const p = pendingYT; pendingYT = null; p.auto ? yt.loadVideoById(p.id) : yt.cueVideoById(p.id); } },
+      onReady() { ytReady = true; yt.setVolume(vol); if (pendingYT) { const p = pendingYT; pendingYT = null; p.auto ? yt.loadVideoById(p.id) : yt.cueVideoById(p.id); } },
       onStateChange(e) { if (kind !== 'yt') return; if (e.data === 1) setPlaying(true); else if (e.data === 2 || e.data === 5) setPlaying(false); else if (e.data === 0) { setPlaying(false); ended(); }
         const t = items[cur]; if (t && e.data === 1 && !t.title) { const d = yt.getVideoData(); if (d && d.title) { t.title = d.title; t.artist = d.author; showMeta(); save(); } } },
       onError(e) {
         const t = items[cur]; if (kind !== 'yt' || !t) return;            // 빈 플레이어가 내는 오류는 무시
         if (location.protocol === 'file:') { toast('내 컴퓨터 파일로 열면 유튜브가 재생을 막습니다 — 인터넷 주소로 열어 주세요', 4000); return; }
         const emb = e.data === 101 || e.data === 150; t.blocked = emb ? 'embed' : 'error'; renderList();
-        toast(emb ? '이 곡은 다른 사이트에서 재생이 막혀 있어 건너뜁니다' : '재생할 수 없는 영상이라 건너뜁니다');
+        toast(emb ? (/ - Topic$/.test(t.artist || '') ? '유튜브 뮤직 자동 음원(Topic)이라 다른 사이트 재생이 막혀 건너뜁니다' : '이 곡은 다른 사이트에서 재생이 막혀 있어 건너뜁니다') : '재생할 수 없는 영상이라 건너뜁니다', 3200);
         if (items.some(x => !x.blocked)) setTimeout(() => step(1, true), 600); else setPlaying(false);
       },
     } });
@@ -341,7 +368,7 @@ function step(d, auto) {
 function ended() { if (repeat === 'one') { E.seek(0); E.play(); } else step(1, true); }
 function showMeta() {
   const t = items[cur];
-  $('tTitle').textContent = t ? (t.title || '불러오는 중…') : '노래를 넣어 주세요'; $('tArtist').textContent = t ? (t.artist || '') : '오른쪽 위 ＋ — 유튜브 주소 · 재생목록 · MP3';
+  $('tTitle').textContent = t ? (t.title || '불러오는 중…') : '레코드룸'; $('tArtist').textContent = t ? (t.artist || '') : '오른쪽 위 ＋ 버튼 또는 재생 버튼';
   if (t && 'mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: t.title || '', artist: t.artist || '', artwork: t.type === 'yt' ? [{ src: `https://i.ytimg.com/vi/${t.id}/hqdefault.jpg` }] : [] });
 }
 function loadImg(src) { return new Promise((ok, no) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => ok(im); im.onerror = no; im.src = src; }); }
@@ -412,7 +439,8 @@ addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if 
 /* 판(시트) */
 function openSheet(id) { closeSheets(); $(id).classList.add('open'); $('scrim').classList.add('on'); }
 function closeSheets() { document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open')); $('scrim').classList.remove('on'); }
-$('scrim').onclick = closeSheets; $('bAdd').onclick = () => openSheet('sAdd'); $('bList').onclick = () => { renderList(); openSheet('sList'); };
+$('scrim').onclick = closeSheets;
+$('bClear').onclick = () => { if (!items.length || !confirm(`재생 목록 ${items.length}곡을 모두 지울까요?`)) return; E.pause(); if (ytReady) yt.stopVideo(); A.removeAttribute('src'); items = []; cur = -1; queue = []; cover = null; setPlaying(false); renderList(); showMeta(); save(); closeSheets(); toast('재생 목록을 비웠습니다'); }; $('bAdd').onclick = () => openSheet('sAdd'); $('bList').onclick = () => { renderList(); openSheet('sList'); };
 function renderList() {
   const ul = $('list'); ul.innerHTML = items.length ? '' : '<li style="cursor:default;color:var(--sub)">아직 넣은 노래가 없습니다</li>';
   items.forEach((t, i) => { const li = document.createElement('li'); li.className = (i === cur ? 'cur ' : '') + (t.blocked ? 'blocked' : '');
@@ -516,7 +544,7 @@ function lzw(idx, min, out) {                     // omggif와 같은 순서로 
 }
 
 /* 시작 */
-syncButtons();
+syncButtons(); setVol(vol);
 const hv = new URLSearchParams(location.hash.slice(1));   // 예: #v=영상ID&mode=lp — 미리보기·시연용
 if (hv.get('mode')) { mode = hv.get('mode'); syncButtons(); }
 if (hv.get('v')) items = [{ type: 'yt', id: hv.get('v') }].concat(items.filter(t => t.id !== hv.get('v')));
