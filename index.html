@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="ko"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f2329">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>레코드룸 — 내 노래를 커버·LP·테이프로</title>
+<style>
+:root{--bg:#1f2329;--fg:#eef1f4;--sub:rgba(238,241,244,.62);--track:rgba(238,241,244,.22);--accent:#9fb4c7;--c1:#33414f;--c2:#4f677d;--c3:#7f98ae;--c4:#b9c9d6}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background-color 1.2s ease}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* 앰비언트 — 대표색이 아닌 나머지 색이 은은하게 흐른다 */
+#amb{position:fixed;inset:-25%;z-index:0;pointer-events:none;filter:blur(80px);opacity:.5}
+#amb i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;opacity:.5;transition:background-color 1.6s ease}
+#amb i:nth-child(1){background:var(--c1);left:0;top:0;animation:a1 26s ease-in-out infinite alternate}
+#amb i:nth-child(2){background:var(--c2);right:0;top:10%;animation:a2 31s ease-in-out infinite alternate}
+#amb i:nth-child(3){background:var(--c3);left:10%;bottom:0;animation:a3 29s ease-in-out infinite alternate}
+#amb i:nth-child(4){background:var(--c4);right:5%;bottom:5%;animation:a4 35s ease-in-out infinite alternate;opacity:.35}
+@keyframes a1{to{transform:translate(22vmax,18vmax) scale(1.2)}}
+@keyframes a2{to{transform:translate(-20vmax,22vmax) scale(.85)}}
+@keyframes a3{to{transform:translate(18vmax,-20vmax) scale(1.15)}}
+@keyframes a4{to{transform:translate(-24vmax,-14vmax) scale(.9)}}
+main{position:relative;z-index:1;max-width:460px;margin:0 auto;min-height:100vh;padding:max(14px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--fg);position:relative;transition:transform .15s,color .3s}
+.ib:active{transform:scale(.9)}
+.ib svg{width:24px;height:24px}
+#bOrder,#bRepeat{color:var(--sub)}
+.ib.on,#bOrder.on,#bRepeat.on{color:var(--accent)}
+.ib.on::after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.ib .one{position:absolute;font-size:9px;font-weight:800;top:13px;left:50%;transform:translateX(-50%)}
+.modes{display:flex;background:color-mix(in srgb,var(--fg) 10%,transparent);border-radius:99px;padding:3px}
+.modes button{color:var(--sub);font-size:14px;font-weight:600;padding:8px 15px;border-radius:99px;transition:background .3s,color .3s}
+.modes button.on{background:var(--fg);color:var(--bg)}
+.stage{margin:20px -6px 14px;aspect-ratio:1/1;position:relative}
+#art{width:100%;height:100%;display:block}
+.meta{min-height:58px}
+.title{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.artist{color:var(--sub);font-size:15px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seek{margin-top:16px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;--p:0%}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(to right,var(--fg) var(--p),var(--track) var(--p))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--fg);margin-top:-5px}
+input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:var(--track)}
+input[type=range]::-moz-range-progress{height:4px;border-radius:4px;background:var(--fg)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:var(--fg)}
+.time{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.ctrls{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.ctrls .big{width:72px;height:72px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;transition:transform .15s,background .6s,color .6s}
+.ctrls .big:active{transform:scale(.93)}
+.ctrls .big svg{width:30px;height:30px}
+.ctrls .mid svg{width:30px;height:30px}
+.row{display:flex;gap:10px;margin-top:20px}
+.chip{flex:1;border-radius:14px;padding:13px 10px;font-size:14px;font-weight:600;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);transition:transform .15s}
+.chip:active{transform:scale(.97)}
+/* 아래에서 올라오는 판 */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:5;max-width:480px;margin:0 auto;background:color-mix(in srgb,var(--bg) 88%,#fff 12%);border-radius:24px 24px 0 0;padding:10px 20px max(20px,env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);max-height:78vh;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.sheet.open{transform:none}
+.sheet .grab{width:40px;height:5px;border-radius:5px;background:var(--track);margin:0 auto 14px}
+.sheet h3{font-size:17px;margin-bottom:12px}
+.sheet p.hint{font-size:13px;color:var(--sub);line-height:1.6;margin-top:8px}
+.field{display:flex;gap:8px}
+.field input{flex:1;min-width:0;border:0;border-radius:12px;padding:13px 14px;font:inherit;font-size:15px;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);outline:none}
+.field input::placeholder{color:var(--sub)}
+.btn{border-radius:12px;padding:13px 16px;font-weight:700;font-size:15px;background:var(--fg);color:var(--bg)}
+.btn.ghost{background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg)}
+.sep{height:1px;background:var(--track);margin:18px 0}
+.list{list-style:none}
+.list li{display:flex;align-items:center;gap:12px;padding:8px 0;border-radius:12px;cursor:pointer}
+.list li.cur .lt{color:var(--accent)}
+.list img,.list .ph{width:46px;height:46px;border-radius:8px;object-fit:cover;flex:none;background:var(--track)}
+.list .lx{flex:1;min-width:0}
+.list .lt{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list .la{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list li.blocked{opacity:.4}
+.list .del{width:36px;height:36px;color:var(--sub)}
+.fmt{display:flex;gap:8px;margin-bottom:12px}
+.fmt button{flex:1;border-radius:12px;padding:12px;font-weight:600;background:color-mix(in srgb,var(--fg) 10%,transparent)}
+.fmt button.on{background:var(--fg);color:var(--bg)}
+.fmt button:disabled{opacity:.35;cursor:not-allowed}
+#preview{width:100%;border-radius:14px;margin-top:12px;display:none}
+.prog{height:4px;border-radius:4px;background:var(--track);overflow:hidden;margin-top:12px;display:none}.prog i{display:block;height:100%;width:0;background:var(--fg)}
+#scrim{position:fixed;inset:0;z-index:4;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s}
+#scrim.on{opacity:1;pointer-events:auto}
+#toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:99px;font-size:14px;font-weight:600;opacity:0;transition:.3s;z-index:9;pointer-events:none;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#ytbox{position:fixed;left:-480px;top:0;width:240px;height:135px}   /* 소리만 쓴다 — 화면 밖 */
+</style>
+</head>
+<body>
+<div id="amb"><i></i><i></i><i></i><i></i></div>
+<main>
+  <div class="top">
+    <button class="ib" id="bList" aria-label="재생 목록"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button>
+    <div class="modes" id="modes"><button data-m="cover">커버</button><button data-m="lp">LP</button><button data-m="tape">테이프</button></div>
+    <button class="ib" id="bAdd" aria-label="노래 넣기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+  </div>
+  <div class="stage"><canvas id="art"></canvas></div>
+  <div class="meta"><div class="title" id="tTitle">노래를 넣어 주세요</div><div class="artist" id="tArtist">오른쪽 위 ＋ — 유튜브 주소 · 재생목록 · MP3</div></div>
+  <div class="seek"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="재생 위치"><div class="time"><span id="tCur">0:00</span><span id="tDur">0:00</span></div></div>
+  <div class="ctrls">
+    <button class="ib" id="bOrder" aria-label="재생 순서"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+    <button class="ib mid" id="bPrev" aria-label="이전"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+    <button class="big" id="bPlay" aria-label="재생"><svg viewBox="0 0 24 24" fill="currentColor" id="iPlay"><path d="M8 5v14l11-7z"/></svg></button>
+    <button class="ib mid" id="bNext" aria-label="다음"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+    <button class="ib" id="bRepeat" aria-label="반복"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span class="one" id="iOne" hidden>1</span></button>
+  </div>
+  <div class="row"><button class="chip" id="bShuffleNow">지금 섞기</button><button class="chip" id="bSave">움직이는 카드 저장</button></div>
+</main>
+
+<div id="scrim"></div>
+<section class="sheet" id="sAdd">
+  <div class="grab"></div><h3>노래 넣기</h3>
+  <div class="field"><input id="url" placeholder="유튜브 영상·재생목록 주소" inputmode="url" autocomplete="off"><button class="btn" id="bUrl">넣기</button></div>
+  <p class="hint">재생목록 주소(list=…)를 넣으면 통째로 들어갑니다. 커버는 영상 썸네일, 색은 썸네일에서 뽑습니다. 다른 사이트 재생이 막힌 영상은 건너뜁니다.</p>
+  <div class="sep"></div>
+  <button class="btn ghost" id="bFile" style="width:100%">MP3 파일 넣기</button>
+  <input type="file" id="file" accept="audio/*,.mp3,.m4a" multiple hidden>
+  <p class="hint">파일 안에 든 커버 그림과 제목을 읽습니다. 파일은 이 기기를 벗어나지 않습니다.</p>
+</section>
+<section class="sheet" id="sList"><div class="grab"></div><h3>재생 목록</h3><ul class="list" id="list"></ul></section>
+<section class="sheet" id="sSave">
+  <div class="grab"></div><h3>움직이는 카드</h3>
+  <div class="fmt" id="fmt"><button data-f="webp">WebP · 고화질 저용량</button><button data-f="gif">GIF</button></div>
+  <button class="btn" id="bMake" style="width:100%">지금 화면으로 만들기 (4초)</button>
+  <div class="prog" id="prog"><i></i></div>
+  <img id="preview" alt="">
+  <div class="row" id="outRow" style="display:none"><button class="chip" id="bShare">공유하기</button><button class="chip" id="bDown">저장하기</button></div>
+  <p class="hint" id="fmtHint"></p>
+</section>
+<div id="toast"></div>
+<div id="ytbox"><div id="yt"></div><div id="ytprobe"></div></div>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const toast = (m, ms = 2400) => { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms); };
+const store = { get(k, d) { try { const v = localStorage.getItem('rr-' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem('rr-' + k, JSON.stringify(v)); } catch (e) {} } };
+const fmtT = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+/* ═══ 색 뽑기 — trackpic(pic-kn/trackpic)과 같은 절차: 가운데 70% · MMCQ 25색 · 주색 색상 ±0.15 또는 채도<0.2 · 밝기순 5색 ═══ */
+const lumOf = (r, g, b) => .2126 * r + .7152 * g + .0722 * b;
+function rgb2hsl(r, g, b) { r /= 255; g /= 255; b /= 255; const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2; if (mx === mn) return { h: 0, s: 0, l }; const d = mx - mn, s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn); let h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return { h: h / 6, s, l }; }
+function hsl2rgb(h, s, l) { if (!s) return [l * 255, l * 255, l * 255].map(Math.round); const f = (p, q, t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < .5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; }; const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q; return [f(p, q, h + 1 / 3), f(p, q, h), f(p, q, h - 1 / 3)].map(v => Math.round(v * 255)); }
+const hex = (r, g, b) => '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+function mmcq(pixels, maxColors) {           // 5비트 히스토그램 + 중앙값 자르기
+  const histo = new Uint32Array(32768); let r1 = 31, r2 = 0, g1 = 31, g2 = 0, b1 = 31, b2 = 0;
+  for (const [r, g, b] of pixels) { const R = r >> 3, G = g >> 3, B = b >> 3; histo[(R << 10) | (G << 5) | B]++; r1 = Math.min(r1, R); r2 = Math.max(r2, R); g1 = Math.min(g1, G); g2 = Math.max(g2, G); b1 = Math.min(b1, B); b2 = Math.max(b2, B); }
+  const box = (a) => { const o = { a }; o.count = () => { if (o._c != null) return o._c; let n = 0; const [ra, rb, ga, gb, ba, bb] = a; for (let r = ra; r <= rb; r++) for (let g = ga; g <= gb; g++) for (let b = ba; b <= bb; b++) n += histo[(r << 10) | (g << 5) | b]; return (o._c = n); };
+    o.avg = () => { let n = 0, rs = 0, gs = 0, bs = 0; const [ra, rb, ga, gb, ba, bb] = a; for (let r = ra; r <= rb; r++) for (let g = ga; g <= gb; g++) for (let b = ba; b <= bb; b++) { const h = histo[(r << 10) | (g << 5) | b]; n += h; rs += h * (r + .5) * 8; gs += h * (g + .5) * 8; bs += h * (b + .5) * 8; } return n ? [rs / n, gs / n, bs / n].map(Math.round) : [(ra + rb + 1) * 4, (ga + gb + 1) * 4, (ba + bb + 1) * 4]; }; return o; };
+  const boxes = [box([r1, r2, g1, g2, b1, b2])];
+  for (let it = 0; boxes.length < maxColors && it < Math.max(100, maxColors * 3); it++) {
+    boxes.sort((x, y) => y.count() - x.count()); const t = boxes.shift(); if (!t.count()) { boxes.push(t); break; }
+    const [ra, rb, ga, gb, ba, bb] = t.a, w = [rb - ra, gb - ga, bb - ba], ax = w.indexOf(Math.max(...w));
+    const lo = t.a[ax * 2], hi = t.a[ax * 2 + 1]; if (lo === hi) { boxes.push(t); break; }
+    let tot = 0; const part = {};
+    for (let v = lo; v <= hi; v++) { const a = t.a.slice(); a[ax * 2] = a[ax * 2 + 1] = v; tot += box(a).count(); part[v] = tot; }
+    let cut = lo; for (let v = lo; v <= hi; v++) if (part[v] >= tot / 2) { cut = v; break; } if (cut === hi) cut = hi - 1;
+    const A = t.a.slice(), B = t.a.slice(); A[ax * 2 + 1] = cut; B[ax * 2] = cut + 1;
+    const ba_ = box(A), bb_ = box(B); let added = false; if (ba_.count()) { boxes.push(ba_); added = true; } if (bb_.count()) { boxes.push(bb_); added = true; } if (!added) { boxes.push(t); break; }
+  }
+  return boxes.sort((x, y) => y.count() - x.count()).map(b => b.avg());
+}
+function extractPalette(src) {               // src: {img, sx, sy, sw, sh}
+  const cw = Math.max(10, Math.round(src.sw * .7)), ch = Math.max(10, Math.round(src.sh * .7));
+  const c = document.createElement('canvas'); c.width = cw; c.height = ch; const x = c.getContext('2d', { willReadFrequently: true });
+  x.drawImage(src.img, src.sx + (src.sw - cw) / 2, src.sy + (src.sh - ch) / 2, cw, ch, 0, 0, cw, ch);
+  let d; try { d = x.getImageData(0, 0, cw, ch).data; } catch (e) { return null; }
+  const px = []; for (let i = 0; i < d.length; i += 16) if (d[i + 3] >= 125) px.push([d[i], d[i + 1], d[i + 2]]);
+  if (!px.length) return null;
+  const raw = mmcq(px, 25); const dom = rgb2hsl(...raw[0]).h;
+  const hd = (a, b) => { const v = Math.abs(a - b); return Math.min(v, 1 - v); };
+  const mapped = raw.map(([r, g, b]) => { const { h, s } = rgb2hsl(r, g, b); return { r, g, b, h, s, lum: lumOf(r, g, b) }; });
+  const inR = mapped.filter(c => c.s < .2 || hd(c.h, dom) <= .15), cand = (inR.length >= 5 ? inR : mapped).sort((a, b) => a.lum - b.lum);
+  const pick = m => { const out = [cand[0]]; for (const c of cand.slice(1)) if (out.every(p => Math.abs(p.lum - c.lum) >= m)) { out.push(c); if (out.length === 5) break; } return out; };
+  let p; for (const m of [25, 15, 8, 5, 3]) { p = pick(m); if (p.length >= 5) break; }
+  const base = p[0], { h, s, l } = rgb2hsl(base.r, base.g, base.b);
+  while (p.length < 5) { const [r, g, b] = hsl2rgb(h, Math.max(.1, s), Math.max(.1, Math.min(.9, l + p.length * .16 - .32))); p.push({ r, g, b, h, s, lum: lumOf(r, g, b) }); }
+  return p.sort((a, b) => a.lum - b.lum).slice(0, 5).map(c => ({ ...c, hex: hex(c.r, c.g, c.b) }));
+}
+let PAL = null;
+const relLum = (r, g, b) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
+function contrastOn(c, bg) {                 // 강조색이 배경 위에서 3:1 이상 보이도록 밝기만 옮긴다 (색상은 그대로)
+  const L2 = relLum(bg.r, bg.g, bg.b), ratio = (r, g, b) => { const L1 = relLum(r, g, b); return (Math.max(L1, L2) + .05) / (Math.min(L1, L2) + .05); };
+  let { h, s, l } = rgb2hsl(c.r, c.g, c.b), rgb = [c.r, c.g, c.b]; const up = L2 < .3;
+  for (let i = 0; i < 40 && ratio(...rgb) < 3; i++) { l = Math.max(0, Math.min(1, l + (up ? .03 : -.03))); rgb = hsl2rgb(h, Math.max(s, .25), l); }
+  return hex(...rgb);
+}
+function applyPalette(pal) {
+  if (!pal) return; PAL = pal; const bg = pal[0], light = bg.lum > 180, R = document.documentElement.style;
+  R.setProperty('--bg', bg.hex);
+  R.setProperty('--fg', light ? '#2C3236' : '#EDF1F3');
+  R.setProperty('--sub', light ? 'rgba(44,50,54,.62)' : 'rgba(237,241,243,.65)');
+  R.setProperty('--track', light ? 'rgba(44,50,54,.15)' : 'rgba(237,241,243,.25)');
+  pal.slice(1).forEach((c, i) => R.setProperty('--c' + (i + 1), c.hex));
+  const acc = pal.slice(1).reduce((a, c) => Math.abs(c.lum - bg.lum) > Math.abs(a.lum - bg.lum) ? c : a);
+  R.setProperty('--accent', contrastOn(acc, bg));
+  document.querySelector('meta[name=theme-color]').content = bg.hex;
+}
+
+/* ═══ 그리기 — 커버 · LP · 테이프 (화면과 저장이 같은 함수를 쓴다) ═══ */
+function rr(x, X, Y, W, H, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + W, Y, X + W, Y + H, r); x.arcTo(X + W, Y + H, X, Y + H, r); x.arcTo(X, Y + H, X, Y, r); x.arcTo(X, Y, X + W, Y, r); x.closePath(); }
+function drawImg(x, cv, X, Y, W, H) {          // cv.img의 정사각 잘린 영역을 채워 그린다
+  if (!cv) { const g = x.createLinearGradient(X, Y, X + W, Y + H); g.addColorStop(0, PAL ? PAL[2].hex : '#4f677d'); g.addColorStop(1, PAL ? PAL[4].hex : '#b9c9d6'); x.fillStyle = g; x.fillRect(X, Y, W, H); x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `${W * .32}px system-ui`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('♪', X + W / 2, Y + H / 2); return; }
+  x.drawImage(cv.img, cv.sx, cv.sy, cv.sw, cv.sh, X, Y, W, H);
+}
+function drawCover(x, S, cv) {
+  const p = S * .07, w = S - p * 2;
+  x.save(); x.shadowColor = 'rgba(0,0,0,.35)'; x.shadowBlur = S * .07; x.shadowOffsetY = S * .03; rr(x, p, p, w, w, S * .035); x.fillStyle = '#000'; x.fill(); x.restore();
+  x.save(); rr(x, p, p, w, w, S * .035); x.clip(); drawImg(x, cv, p, p, w, w); x.restore();
+}
+/* 평평한 면 + 층마다 아주 부드러운 그림자 (참고: 흰 톤암·연회색 받침 턴테이블, 무광 카세트) */
+const mix = (a, b, t) => hex(a.r + (b.r - a.r) * t, a.g + (b.g - a.g) * t, a.b + (b.b - a.b) * t);
+function soft(x, S, k = 1) { x.shadowColor = `rgba(0,0,0,${.22 * k})`; x.shadowBlur = S * .035 * k; x.shadowOffsetY = S * .01 * k; x.shadowOffsetX = 0; }
+function circ(x, cx, cy, r) { x.beginPath(); x.arc(cx, cy, r, 0, Math.PI * 2); }
+function drawLP(x, S, cv, ang, arm) {
+  const R = S * .38, cx = S * .5, cy = S * .49, lab = R * .36;
+  x.save(); x.shadowColor = 'rgba(0,0,0,.45)'; x.shadowBlur = S * .06; x.shadowOffsetY = S * .02; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fillStyle = '#0d0d0f'; x.fill(); x.restore();
+  const g = x.createRadialGradient(cx, cy, lab, cx, cy, R); g.addColorStop(0, '#1b1b1e'); g.addColorStop(.6, '#121214'); g.addColorStop(1, '#0a0a0b'); x.fillStyle = g; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.fill();
+  x.lineWidth = Math.max(.5, S * .0012);      // 소리골
+  for (let r = lab * 1.12; r < R * .975; r += R * .0115) { x.strokeStyle = `rgba(255,255,255,${.035 + (Math.round(r * 7) % 3) * .012})`; x.beginPath(); x.arc(cx, cy, r, 0, 7); x.stroke(); }
+  if (x.createConicGradient) {                // 빛 반사 — 판이 돌아도 빛은 제자리
+    const c = x.createConicGradient(-Math.PI / 4, cx, cy);
+    [[0, 0], [.06, .13], [.13, 0], [.5, 0], [.56, .09], [.63, 0], [1, 0]].forEach(([o, a]) => c.addColorStop(o, `rgba(255,255,255,${a})`));
+    x.fillStyle = c; x.beginPath(); x.arc(cx, cy, R, 0, 7); x.arc(cx, cy, lab * 1.05, 0, 7, true); x.fill();
+  }
+  x.save(); x.translate(cx, cy); x.rotate(ang); x.beginPath(); x.arc(0, 0, lab, 0, 7); x.clip(); drawImg(x, cv, -lab, -lab, lab * 2, lab * 2); x.restore();
+  x.strokeStyle = 'rgba(0,0,0,.35)'; x.lineWidth = S * .004; x.beginPath(); x.arc(cx, cy, lab, 0, 7); x.stroke();
+  x.fillStyle = '#d8d8d8'; x.beginPath(); x.arc(cx, cy, R * .028, 0, 7); x.fill();
+  // 톤암 — 받침 왼쪽 아래에서 S자로. 재생하면 판 위로, 멈추면 바깥으로
+  const Bx = S * .1, By = S * .87, L = S * .41;
+  const play = Math.atan2(cy - R * .12 - By, cx - R * .8 - Bx) + Math.PI / 2, rest = play - .42, a = rest + (play - rest) * arm;
+  const W = '#f4f4f2', W2 = '#e3e3e0';
+  x.save(); soft(x, S, .8); circ(x, Bx, By, S * .062); x.fillStyle = W2; x.fill(); x.restore();
+  circ(x, Bx, By, S * .062); x.fillStyle = W2; x.fill();
+  x.save(); x.translate(Bx, By); x.rotate(a);
+  // 팔: 위로 올라가다 끝에서 살짝 꺾인다 (로컬 좌표: 위쪽이 -y)
+  x.save(); soft(x, S, .7); x.strokeStyle = W; x.lineCap = 'round'; x.lineJoin = 'round'; x.lineWidth = S * .016;
+  x.beginPath(); x.moveTo(0, 0); x.bezierCurveTo(-S * .03, -S * .16, -S * .01, -L * .72, S * .025, -L * .88); x.lineTo(S * .045, -L * .93); x.stroke(); x.restore();
+  // 헤드셸
+  x.save(); x.translate(S * .05, -L * .95); x.rotate(.5); soft(x, S, .7); rr(x, -S * .022, -S * .05, S * .044, S * .08, S * .008); x.fillStyle = W; x.fill(); x.restore();
+  x.save(); x.translate(S * .05, -L * .95); x.rotate(.5); x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(-S * .01, -S * .036, S * .005, S * .018); x.fillRect(S * .004, -S * .036, S * .005, S * .018); x.restore();
+  // 꼬리(균형추)
+  x.save(); soft(x, S, .5); rr(x, -S * .012, S * .03, S * .024, S * .05, S * .006); x.fillStyle = W; x.fill(); x.restore();
+  x.restore();
+  x.save(); soft(x, S, .6); circ(x, Bx, By, S * .03); x.fillStyle = W; x.fill(); x.restore();
+}
+function drawTape(x, S, cv, ang, prog, title, artist) {
+  const W = S * .9, H = W * .63, X = (S - W) / 2, Y = (S - H) / 2 - S * .02, rad = W * .028;
+  const P = PAL || [{ hex: '#1f2329', r: 31, g: 35, b: 41, lum: 34 }, { hex: '#33414f' }, { hex: '#4f677d' }, { hex: '#7f98ae' }, { hex: '#e9e6dc', r: 233, g: 230, b: 220, lum: 230 }];
+  // 몸체 — 무광, 가는 가로줄 결
+  x.save(); soft(x, S, .6); rr(x, X, Y, W, H, rad); x.fillStyle = '#1b1b20'; x.fill(); x.restore();
+  x.save(); rr(x, X, Y, W, H, rad); x.clip(); x.fillStyle = 'rgba(255,255,255,.022)'; for (let yy = Y; yy < Y + H; yy += Math.max(2, S * .0045)) x.fillRect(X, yy, W, Math.max(1, S * .0012)); x.restore();
+  x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; rr(x, X + S * .004, Y + S * .004, W - S * .008, H - S * .008, rad * .8); x.stroke();
+  // 스티커
+  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, cream = P[4].lum > 170 ? P[4] : { hex: '#efece2', r: 239, g: 236, b: 226, lum: 236 }, base = mix(cream, { r: 255, g: 252, b: 240 }, .35);
+  x.save(); rr(x, lX, lY, lW, lH, S * .01); x.clip(); x.fillStyle = base; x.fillRect(lX, lY, lW, lH);
+  const iw = lW * .3; drawImg(x, cv, lX, lY, Math.max(iw, lH), lH);   // 사진 → 스티커 색으로 번짐
+  const fd = x.createLinearGradient(lX + iw * .45, 0, lX + iw * 1.05, 0); fd.addColorStop(0, base + '00'); fd.addColorStop(1, base); x.fillStyle = fd; x.fillRect(lX + iw * .45, lY, Math.max(iw, lH), lH);
+  const sw = lW * .032, st = lX + lW * .86; [P[1], P[2], P[3]].forEach((c, k) => { const sx = st + k * sw; x.strokeStyle = c.hex; x.lineWidth = sw; x.lineCap = 'butt'; x.beginPath(); x.moveTo(sx - lH * .22, lY - 2); x.lineTo(sx, lY + lH * .22); x.lineTo(sx, lY + lH + 2); x.stroke(); });
+  const ink = '#2a2a30', tx = lX + iw * 1.02, tw = st - lH * .22 - sw * .5 - tx - lW * .03;
+  x.fillStyle = ink; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, lY + lH * .2);
+  x.globalAlpha = .62; x.font = `500 ${H * .05}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, lY + lH * .31); x.globalAlpha = 1;
+  x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tx, lY + lH * .94); x.globalAlpha = 1;
+  x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', st - sw, lY + lH * .95); x.textAlign = 'left';
+  x.restore();
+  // 창 — 검은 판 + 가운데 투명창으로 테이프 두께가 보인다
+  const wW = lW * .56, wH = lH * .4, wX = lX + (lW - wW) / 2, wY = lY + lH * .4, ry = wY + wH / 2, r1 = wX + wW * .19, r2 = wX + wW * .81;
+  x.save(); soft(x, S, .35); rr(x, wX, wY, wW, wH, wH * .22); x.fillStyle = '#0c0c0e'; x.fill(); x.restore();
+  const cW = wW * .38, cX = wX + (wW - cW) / 2, cY = wY + wH * .14, cH = wH * .72, rMin = wH * .26, rMax = wW * .3;
+  x.save(); rr(x, cX, cY, cW, cH, S * .004); x.clip(); x.fillStyle = 'rgba(255,255,255,.07)'; x.fillRect(cX, cY, cW, cH);
+  [[r1, rMin + (rMax - rMin) * (1 - prog)], [r2, rMin + (rMax - rMin) * prog]].forEach(([c, r]) => { circ(x, c, ry, r); x.fillStyle = '#2b1f18'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; x.stroke(); });
+  x.restore(); x.strokeStyle = 'rgba(255,255,255,.1)'; x.lineWidth = S * .002; rr(x, cX, cY, cW, cH, S * .004); x.stroke();
+  const acc = PAL ? P[2].hex : '#7f98ae';
+  [r1, r2].forEach(c => { x.save(); x.translate(c, ry); circ(x, 0, 0, wH * .38); x.fillStyle = '#d9d8d4'; x.fill(); circ(x, 0, 0, wH * .28); x.fillStyle = acc; x.fill(); x.rotate(ang); x.fillStyle = '#f2f1ee';
+    for (let k = 0; k < 6; k++) { x.rotate(Math.PI / 3); rr(x, wH * .2, -wH * .045, wH * .14, wH * .09, wH * .02); x.fill(); } circ(x, 0, 0, wH * .09); x.fillStyle = '#0c0c0e'; x.fill(); x.restore(); });
+  // 아래 사다리꼴 — 결 + 구동 구멍 + 나사
+  const tY = Y + H * .76; x.save(); x.beginPath(); x.moveTo(X + W * .17, Y + H); x.lineTo(X + W * .22, tY); x.lineTo(X + W * .78, tY); x.lineTo(X + W * .83, Y + H); x.closePath(); x.fillStyle = '#16161a'; x.fill(); x.clip();
+  x.fillStyle = 'rgba(255,255,255,.035)'; for (let yy = tY; yy < Y + H; yy += Math.max(2, S * .005)) x.fillRect(X, yy, W, Math.max(1, S * .0012)); x.restore();
+  [.3, .4, .6, .7].forEach(u => { circ(x, X + W * u, Y + H * .9, W * .016); x.fillStyle = '#050506'; x.fill(); circ(x, X + W * u - W * .004, Y + H * .893, W * .006); x.fillStyle = 'rgba(255,255,255,.55)'; x.fill(); });
+  [[.035, .07], [.965, .07], [.035, .93], [.965, .93], [.5, .815]].forEach(([u, v]) => { const sx = X + W * u, sy = Y + H * v, sr = W * .014; circ(x, sx, sy, sr); x.fillStyle = '#2c2c32'; x.fill(); x.strokeStyle = '#08080a'; x.lineWidth = sr * .28; x.beginPath(); x.moveTo(sx - sr * .55, sy); x.lineTo(sx + sr * .55, sy); x.moveTo(sx, sy - sr * .55); x.lineTo(sx, sy + sr * .55); x.stroke(); });
+}
+
+function fit(x, s, w) { if (x.measureText(s).width <= w) return s; while (s.length && x.measureText(s + '…').width > w) s = s.slice(0, -1); return s + '…'; }
+
+/* ═══ 재생 목록과 재생 ═══ */
+let items = store.get('items', []).filter(t => t.type === 'yt');   // 파일은 다시 열면 사라진다
+let mode = store.get('mode', 'cover'), order = store.get('order', 'seq'), repeat = store.get('repeat', 'all');
+let cur = -1, queue = [], qpos = 0, playing = false, cover = null;
+const save = () => { store.set('items', items.filter(t => t.type === 'yt').map(({ type, id, title, artist }) => ({ type, id, title, artist }))); store.set('mode', mode); store.set('order', order); store.set('repeat', repeat); };
+const A = new Audio(); A.preload = 'metadata';
+let yt = null, ytReady = false, pendingYT = null, kind = null;
+const E = {
+  play() { kind === 'yt' ? yt && yt.playVideo() : A.play().catch(() => {}); },
+  pause() { kind === 'yt' ? yt && yt.pauseVideo() : A.pause(); },
+  seek(s) { kind === 'yt' ? yt && yt.seekTo(s, true) : (A.currentTime = s); },
+  time() { return kind === 'yt' ? (yt && yt.getCurrentTime ? yt.getCurrentTime() : 0) : A.currentTime; },
+  dur() { return kind === 'yt' ? (yt && yt.getDuration ? yt.getDuration() : 0) : (isFinite(A.duration) ? A.duration : 0); },
+};
+A.addEventListener('play', () => setPlaying(true)); A.addEventListener('pause', () => setPlaying(false)); A.addEventListener('ended', ended);
+function setPlaying(v) { playing = v; $('iPlay').innerHTML = v ? '<path d="M7 5h4v14H7zM13 5h4v14h-4z"/>' : '<path d="M8 5v14l11-7z"/>'; if ('mediaSession' in navigator) navigator.mediaSession.playbackState = v ? 'playing' : 'paused'; }
+
+window.onYouTubeIframeAPIReady = () => {
+  yt = new YT.Player('yt', { width: 240, height: 135, playerVars: { playsinline: 1, controls: 0, rel: 0, disablekb: 1, origin: location.protocol.startsWith('http') ? location.origin : undefined },
+    events: {
+      onReady() { ytReady = true; if (pendingYT) { const p = pendingYT; pendingYT = null; p.auto ? yt.loadVideoById(p.id) : yt.cueVideoById(p.id); } },
+      onStateChange(e) { if (kind !== 'yt') return; if (e.data === 1) setPlaying(true); else if (e.data === 2 || e.data === 5) setPlaying(false); else if (e.data === 0) { setPlaying(false); ended(); }
+        const t = items[cur]; if (t && e.data === 1 && !t.title) { const d = yt.getVideoData(); if (d && d.title) { t.title = d.title; t.artist = d.author; showMeta(); save(); } } },
+      onError(e) {
+        const t = items[cur]; if (kind !== 'yt' || !t) return;            // 빈 플레이어가 내는 오류는 무시
+        if (location.protocol === 'file:') { toast('내 컴퓨터 파일로 열면 유튜브가 재생을 막습니다 — 인터넷 주소로 열어 주세요', 4000); return; }
+        const emb = e.data === 101 || e.data === 150; t.blocked = emb ? 'embed' : 'error'; renderList();
+        toast(emb ? '이 곡은 다른 사이트에서 재생이 막혀 있어 건너뜁니다' : '재생할 수 없는 영상이라 건너뜁니다');
+        if (items.some(x => !x.blocked)) setTimeout(() => step(1, true), 600); else setPlaying(false);
+      },
+    } });
+};
+(() => { const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api'; document.head.appendChild(s); })();
+
+function buildQueue(keepCur) {
+  const idx = items.map((_, i) => i).filter(i => !items[i].blocked);
+  if (order === 'shuffle') { for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; } if (keepCur && cur >= 0) { const k = idx.indexOf(cur); if (k > 0) [idx[0], idx[k]] = [idx[k], idx[0]]; } }
+  queue = idx; qpos = Math.max(0, queue.indexOf(cur));
+}
+function load(i, auto) {
+  if (i < 0 || i >= items.length) return; cur = i; const t = items[i];
+  if (t.type === 'yt') { if (kind === 'file') A.pause(); kind = 'yt'; if (!ytReady) pendingYT = { id: t.id, auto }; else auto ? yt.loadVideoById(t.id) : yt.cueVideoById(t.id); }
+  else { if (kind === 'yt' && ytReady) yt.stopVideo(); kind = 'file'; A.src = t.url; if (auto) A.play().catch(() => {}); }
+  qpos = Math.max(0, queue.indexOf(i)); showMeta(); loadCover(t); renderList();
+}
+function step(d, auto) {
+  if (!queue.length) return;
+  qpos += d;
+  if (qpos >= queue.length) { if (repeat === 'all' || auto === 'manual') { if (order === 'shuffle') { buildQueue(false); } qpos = 0; } else { qpos = queue.length - 1; setPlaying(false); return; } }
+  if (qpos < 0) qpos = repeat === 'all' ? queue.length - 1 : 0;
+  load(queue[qpos], true);
+}
+function ended() { if (repeat === 'one') { E.seek(0); E.play(); } else step(1, true); }
+function showMeta() {
+  const t = items[cur];
+  $('tTitle').textContent = t ? (t.title || '불러오는 중…') : '노래를 넣어 주세요'; $('tArtist').textContent = t ? (t.artist || '') : '오른쪽 위 ＋ — 유튜브 주소 · 재생목록 · MP3';
+  if (t && 'mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: t.title || '', artist: t.artist || '', artwork: t.type === 'yt' ? [{ src: `https://i.ytimg.com/vi/${t.id}/hqdefault.jpg` }] : [] });
+}
+function loadImg(src) { return new Promise((ok, no) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => ok(im); im.onerror = no; im.src = src; }); }
+async function loadCover(t) {
+  let cv = null;
+  try {
+    if (t.type === 'yt') {
+      let im = await loadImg(`https://i.ytimg.com/vi/${t.id}/maxresdefault.jpg`).catch(() => null);
+      if (im && im.naturalWidth > 200) { const s = Math.min(im.naturalWidth, im.naturalHeight); cv = { img: im, sx: (im.naturalWidth - s) / 2, sy: (im.naturalHeight - s) / 2, sw: s, sh: s }; }
+      else { im = await loadImg(`https://i.ytimg.com/vi/${t.id}/hqdefault.jpg`); const h = im.naturalHeight * .75, s = h; cv = { img: im, sx: (im.naturalWidth - s) / 2, sy: im.naturalHeight * .125, sw: s, sh: s }; }   // 위아래 검은 띠를 뺀 가운데
+    } else if (t.cover) { const im = await loadImg(t.cover); const s = Math.min(im.naturalWidth, im.naturalHeight); cv = { img: im, sx: (im.naturalWidth - s) / 2, sy: (im.naturalHeight - s) / 2, sw: s, sh: s }; }
+  } catch (e) { cv = null; }
+  if (items[cur] !== t) return; cover = cv; if (cv) applyPalette(extractPalette(cv));
+}
+
+/* 유튜브 주소 · 재생목록 */
+const vidOf = u => (u.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([\w-]{11})/) || [])[1];
+const listOf = u => (u.match(/[?&]list=([\w-]+)/) || [])[1];
+async function ytMeta(t) { try { const r = await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent('https://www.youtube.com/watch?v=' + t.id)}`); if (r.ok) { const j = await r.json(); t.title = j.title; t.artist = j.author_name; } } catch (e) {} if (t === items[cur]) showMeta(); renderList(); save(); }
+function addYT(ids) { const first = items.length; ids.forEach(id => { const t = { type: 'yt', id }; items.push(t); ytMeta(t); }); buildQueue(true); if (cur < 0 || !playing) load(first, false); renderList(); save(); toast(ids.length > 1 ? `${ids.length}곡을 넣었습니다` : '넣었습니다'); }
+function importList(list) {
+  toast('재생목록을 읽는 중…', 8000);
+  const done = ids => { if (!ids || !ids.length) { toast('재생목록을 읽지 못했습니다 — 공개 재생목록인지 확인해 주세요'); return; } addYT(ids); };
+  const make = () => { let fin = false; const p = new YT.Player('ytprobe', { width: 1, height: 1, playerVars: { list, listType: 'playlist' },
+    events: { onReady() { let n = 0; const poll = () => { const ids = p.getPlaylist && p.getPlaylist(); if ((ids && ids.length) || ++n > 16) { if (fin) return; fin = true; try { p.destroy(); } catch (e) {} if (!$('ytprobe')) { const box = document.createElement('div'); box.id = 'ytprobe'; $('ytbox').appendChild(box); } done(ids); } else setTimeout(poll, 500); }; setTimeout(poll, 600); } } }); };
+  ytReady ? make() : setTimeout(() => importList(list), 800);
+}
+$('bUrl').onclick = () => { const u = $('url').value.trim(); if (!u) return; const l = listOf(u), v = vidOf(u); if (l) importList(l); else if (v) addYT([v]); else { toast('유튜브 주소가 아닌 것 같습니다'); return; } $('url').value = ''; closeSheets(); };
+$('url').addEventListener('keydown', e => { if (e.key === 'Enter') $('bUrl').click(); });
+
+/* MP3 — ID3 태그에서 제목·가수·커버 */
+function id3(buf) {
+  const u = new Uint8Array(buf), out = {}; if (u[0] !== 73 || u[1] !== 68 || u[2] !== 51) return out;
+  const v = u[3], size = (u[6] << 21) | (u[7] << 14) | (u[8] << 7) | u[9]; let o = 10; if (u[5] & 0x40) o += v === 4 ? ((u[10] << 21) | (u[11] << 14) | (u[12] << 7) | u[13]) : ((u[10] << 24) | (u[11] << 16) | (u[12] << 8) | u[13]) + 4;
+  const txt = (b, e) => { const enc = b[0], d = b.subarray(1); try { return (enc === 1 ? new TextDecoder('utf-16') : enc === 2 ? new TextDecoder('utf-16be') : enc === 3 ? new TextDecoder('utf-8') : new TextDecoder('euc-kr')).decode(d).replace(/\0+$/, '').trim(); } catch (e) { return ''; } };
+  while (o + 10 < Math.min(u.length, size + 10)) {
+    const id = String.fromCharCode(u[o], u[o + 1], u[o + 2], u[o + 3]); if (!/^[A-Z0-9]{4}$/.test(id)) break;
+    const fs = v === 4 ? (u[o + 4] << 21) | (u[o + 5] << 14) | (u[o + 6] << 7) | u[o + 7] : (u[o + 4] << 24) | (u[o + 5] << 16) | (u[o + 6] << 8) | u[o + 7];
+    const b = u.subarray(o + 10, o + 10 + fs);
+    if (id === 'TIT2') out.title = txt(b); else if (id === 'TPE1') out.artist = txt(b);
+    else if (id === 'APIC' && !out.cover) { const enc = b[0]; let p = 1; let mime = ''; while (b[p]) mime += String.fromCharCode(b[p++]); p += 2; if (enc === 1 || enc === 2) { while (p + 1 < b.length && (b[p] || b[p + 1])) p += 2; p += 2; } else { while (b[p]) p++; p++; } out.cover = URL.createObjectURL(new Blob([b.subarray(p)], { type: mime || 'image/jpeg' })); }
+    o += 10 + fs;
+  }
+  return out;
+}
+$('bFile').onclick = () => $('file').click();
+$('file').onchange = async e => {
+  const fs = [...e.target.files]; if (!fs.length) return; const first = items.length;
+  for (const f of fs) { let m = {}; try { m = id3(await f.slice(0, 2 * 1024 * 1024).arrayBuffer()); } catch (er) {} items.push({ type: 'file', url: URL.createObjectURL(f), title: m.title || f.name.replace(/\.[^.]+$/, ''), artist: m.artist || '', cover: m.cover }); }
+  buildQueue(true); if (cur < 0 || !playing) load(first, false); renderList(); closeSheets(); toast(`${fs.length}곡을 넣었습니다`); e.target.value = '';
+};
+
+/* 조작 */
+$('bPlay').onclick = () => { if (cur < 0) { if (items.length) { buildQueue(false); load(queue[0], true); } else openSheet('sAdd'); return; } playing ? E.pause() : E.play(); };
+$('bNext').onclick = () => step(1, 'manual');
+$('bPrev').onclick = () => { if (E.time() > 3) E.seek(0); else step(-1, 'manual'); };
+$('bShuffleNow').onclick = () => { if (items.length < 2) return; const pool = items.map((_, i) => i).filter(i => i !== cur && !items[i].blocked); const n = pool[Math.floor(Math.random() * pool.length)]; order = 'shuffle'; cur = n; buildQueue(true); load(n, true); syncButtons(); save(); toast('섞었습니다'); };
+$('bOrder').onclick = () => { order = order === 'seq' ? 'shuffle' : 'seq'; buildQueue(true); syncButtons(); save(); toast(order === 'shuffle' ? '섞어서 재생' : '순서대로 재생'); };
+$('bRepeat').onclick = () => { repeat = repeat === 'off' ? 'all' : repeat === 'all' ? 'one' : 'off'; syncButtons(); save(); toast(repeat === 'all' ? '전체 반복' : repeat === 'one' ? '한 곡 반복' : '반복 안 함'); };
+function syncButtons() { $('bOrder').classList.toggle('on', order === 'shuffle'); $('bRepeat').classList.toggle('on', repeat !== 'off'); $('iOne').hidden = repeat !== 'one'; document.querySelectorAll('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === mode)); }
+document.querySelectorAll('#modes button').forEach(b => b.onclick = () => { mode = b.dataset.m; syncButtons(); save(); });
+let dragging = false; const seek = $('seek');
+seek.addEventListener('input', () => { dragging = true; const d = E.dur(); $('tCur').textContent = fmtT(seek.value / 1000 * d); seek.style.setProperty('--p', seek.value / 10 + '%'); });
+seek.addEventListener('change', () => { E.seek(seek.value / 1000 * E.dur()); dragging = false; });
+if ('mediaSession' in navigator) { const ms = navigator.mediaSession; ms.setActionHandler('play', () => E.play()); ms.setActionHandler('pause', () => E.pause()); ms.setActionHandler('nexttrack', () => step(1, 'manual')); ms.setActionHandler('previoustrack', () => step(-1, 'manual')); }
+addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if (e.code === 'Space') { e.preventDefault(); $('bPlay').click(); } if (e.key === 'ArrowRight') step(1, 'manual'); if (e.key === 'ArrowLeft') $('bPrev').click(); });
+
+/* 판(시트) */
+function openSheet(id) { closeSheets(); $(id).classList.add('open'); $('scrim').classList.add('on'); }
+function closeSheets() { document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open')); $('scrim').classList.remove('on'); }
+$('scrim').onclick = closeSheets; $('bAdd').onclick = () => openSheet('sAdd'); $('bList').onclick = () => { renderList(); openSheet('sList'); };
+function renderList() {
+  const ul = $('list'); ul.innerHTML = items.length ? '' : '<li style="cursor:default;color:var(--sub)">아직 넣은 노래가 없습니다</li>';
+  items.forEach((t, i) => { const li = document.createElement('li'); li.className = (i === cur ? 'cur ' : '') + (t.blocked ? 'blocked' : '');
+    const th = t.type === 'yt' ? `<img src="https://i.ytimg.com/vi/${t.id}/default.jpg" alt="">` : t.cover ? `<img src="${t.cover}" alt="">` : '<div class="ph"></div>';
+    li.innerHTML = `${th}<div class="lx"><div class="lt"></div><div class="la"></div></div><button class="del" aria-label="빼기">✕</button>`;
+    li.querySelector('.lt').textContent = t.title || '불러오는 중…'; li.querySelector('.la').textContent = t.blocked === 'embed' ? '다른 사이트 재생이 막힌 영상' : t.blocked ? '재생할 수 없는 영상' : (t.artist || '');
+    li.onclick = ev => { if (ev.target.closest('.del')) { items.splice(i, 1); if (i === cur) { cur = -1; E.pause(); } else if (i < cur) cur--; buildQueue(true); renderList(); showMeta(); save(); return; } load(i, true); closeSheets(); };
+    ul.appendChild(li); });
+}
+
+/* ═══ 화면 그리기 — 판은 천천히 돌고, 멈추면 그 자리에 선다 ═══ */
+const art = $('art'), ax = art.getContext('2d'); let ang = 0, spin = 0, arm = 0, last = performance.now();
+function frame(now) {
+  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  spin += ((playing ? 1 : 0) - spin) * Math.min(1, dt * (playing ? 1.6 : 5)); arm += ((playing ? 1 : 0) - arm) * Math.min(1, dt * 3.2);
+  ang += spin * dt * Math.PI * 2 * .3;
+  const dpr = Math.min(2, devicePixelRatio || 1), S = Math.round(art.clientWidth * dpr); if (art.width !== S) { art.width = art.height = S; }
+  ax.clearRect(0, 0, S, S); const t = items[cur], d = E.dur(), tm = E.time(), pr = d ? Math.min(1, tm / d) : 0;
+  if (mode === 'cover') drawCover(ax, S, cover); else if (mode === 'lp') drawLP(ax, S, cover, ang, arm); else drawTape(ax, S, cover, ang * 1.6, pr, t && t.title, t && t.artist);
+  if (!dragging && cur >= 0) { seek.value = Math.round(pr * 1000); seek.style.setProperty('--p', pr * 100 + '%'); $('tCur').textContent = fmtT(tm); $('tDur').textContent = fmtT(d); }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ═══ 움직이는 카드 저장 — WebP(기본) / GIF(아이폰 등 WebP를 못 만드는 브라우저) ═══ */
+const canWebP = (() => { try { const c = document.createElement('canvas'); c.width = c.height = 2; return c.toDataURL('image/webp').startsWith('data:image/webp'); } catch (e) { return false; } })();
+let fmt = canWebP ? 'webp' : 'gif', outBlob = null;
+function syncFmt() { document.querySelectorAll('#fmt button').forEach(b => { b.classList.toggle('on', b.dataset.f === fmt); if (b.dataset.f === 'webp') b.disabled = !canWebP; }); $('fmtHint').textContent = canWebP ? 'WebP는 GIF보다 선명하고 가볍습니다. 카카오톡·인스타그램에는 GIF가 더 잘 움직일 수 있습니다.' : '이 브라우저(아이폰·아이패드 등)는 WebP를 만들 수 없어 GIF로 저장합니다.'; }
+document.querySelectorAll('#fmt button').forEach(b => b.onclick = () => { if (!b.disabled) { fmt = b.dataset.f; syncFmt(); } });
+$('bSave').onclick = () => { if (cur < 0) { toast('먼저 노래를 넣어 주세요'); return; } syncFmt(); $('outRow').style.display = 'none'; $('preview').style.display = 'none'; openSheet('sSave'); };
+function drawCard(x, W, H, ph) {                  // ph: 0~1 한 바퀴
+  const p = PAL || [{ hex: '#1f2329', lum: 30 }, { hex: '#33414f' }, { hex: '#4f677d' }, { hex: '#7f98ae' }, { hex: '#b9c9d6' }], light = p[0].lum > 180, fg = light ? '#2C3236' : '#EDF1F3';
+  x.fillStyle = p[0].hex; x.fillRect(0, 0, W, H);
+  p.slice(1).forEach((c, i) => { const a = ph * Math.PI * 2 + i * 1.7, cx = W * (.5 + .38 * Math.cos(a + i)), cy = H * (.45 + .32 * Math.sin(a * (i % 2 ? 1 : -1) + i * 2)), r = Math.max(W, H) * .55; const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, c.hex + '66'); g.addColorStop(1, c.hex + '00'); x.fillStyle = g; x.fillRect(0, 0, W, H); });
+  const S = W * .86, oX = (W - S) / 2, oY = H * .1, t = items[cur], d = E.dur(), pr = d ? Math.min(1, E.time() / d) : .35;
+  x.save(); x.translate(oX, oY);
+  if (mode === 'cover') drawCover(x, S, cover); else if (mode === 'lp') drawLP(x, S, cover, ph * Math.PI * 2, 1); else drawTape(x, S, cover, ph * Math.PI * 4, pr, t && t.title, t && t.artist);
+  x.restore();
+  const mx = W * .08, ty = oY + S + H * .06; x.fillStyle = fg; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+  x.font = `700 ${W * .06}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, (t && t.title) || '', W - mx * 2), mx, ty);
+  x.globalAlpha = .65; x.font = `500 ${W * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, (t && t.artist) || '', W - mx * 2), mx, ty + W * .065); x.globalAlpha = 1;
+  const by = ty + W * .14; x.fillStyle = light ? 'rgba(44,50,54,.18)' : 'rgba(237,241,243,.25)'; rr(x, mx, by, W - mx * 2, W * .008, W * .004); x.fill(); x.fillStyle = fg; rr(x, mx, by, (W - mx * 2) * pr, W * .008, W * .004); x.fill();
+  x.beginPath(); x.arc(mx + (W - mx * 2) * pr, by + W * .004, W * .014, 0, 7); x.fill();
+  x.globalAlpha = .65; x.font = `500 ${W * .03}px system-ui`; x.fillText(fmtT(pr * d), mx, by + W * .055); x.textAlign = 'right'; x.fillText(fmtT(d), W - mx, by + W * .055); x.globalAlpha = 1;
+}
+$('bMake').onclick = async () => {
+  const N = 48, gif = fmt === 'gif', W = gif ? 360 : 720, H = Math.round(W * 16 / 9), c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true });
+  $('prog').style.display = 'block'; $('bMake').disabled = true; const bar = $('prog').firstElementChild, tick = () => new Promise(r => setTimeout(r, 0));
+  try {
+    if (gif) { const fr = []; for (let i = 0; i < N; i++) { drawCard(x, W, H, i / N); fr.push(x.getImageData(0, 0, W, H)); bar.style.width = (i / N * 50) + '%'; if (i % 4 === 0) await tick(); } outBlob = await gifEncode(fr, W, H, 8, p => bar.style.width = (50 + p * 50) + '%'); }
+    else { const fr = []; for (let i = 0; i < N; i++) { drawCard(x, W, H, i / N); const du = c.toDataURL('image/webp', .86), bin = atob(du.slice(du.indexOf(',') + 1)), u8 = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k); fr.push(new Blob([u8])); bar.style.width = ((i + 1) / N * 100) + '%'; await tick(); } outBlob = await webpAnim(fr, W, H, 83); }
+    $('preview').src = URL.createObjectURL(outBlob); $('preview').style.display = 'block'; $('outRow').style.display = 'flex'; toast(`${(outBlob.size / 1048576).toFixed(1)}MB ${gif ? 'GIF' : 'WebP'}를 만들었습니다`);
+  } catch (e) { toast('만들지 못했습니다: ' + e.message); }
+  $('bMake').disabled = false; $('prog').style.display = 'none'; bar.style.width = 0;
+};
+const outName = () => `레코드룸-${((items[cur] && items[cur].title) || 'card').replace(/[\\/:*?"<>|]/g, '').slice(0, 40)}.${fmt}`;
+$('bShare').onclick = async () => { if (!outBlob) return; const f = new File([outBlob], outName(), { type: outBlob.type });
+  if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: '레코드룸' }); } catch (e) {} } else { toast('이 기기는 바로 공유를 지원하지 않아 저장합니다'); $('bDown').click(); } };
+$('bDown').onclick = () => { if (!outBlob) return; const a = document.createElement('a'); a.href = URL.createObjectURL(outBlob); a.download = outName(); document.body.appendChild(a); a.click(); a.remove(); };
+
+/* 움직이는 WebP — 캔버스가 만든 낱장 WebP를 한 파일로 묶는다 (RIFF · VP8X · ANIM · ANMF) */
+async function webpAnim(blobs, W, H, ms) {
+  const le = (n, b) => { const a = []; for (let i = 0; i < b; i++) a.push((n >> (8 * i)) & 255); return a; }, s4 = s => [...s].map(c => c.charCodeAt(0));
+  const frames = []; let alpha = false;
+  for (const b of blobs) { const u = new Uint8Array(await b.arrayBuffer()); let o = 12; const parts = [];
+    while (o + 8 <= u.length) { const id = String.fromCharCode(u[o], u[o + 1], u[o + 2], u[o + 3]), sz = u[o + 4] | u[o + 5] << 8 | u[o + 6] << 16 | u[o + 7] << 24, end = o + 8 + sz + (sz & 1);
+      if (id === 'VP8 ' || id === 'VP8L' || id === 'ALPH') { parts.push(u.subarray(o, end)); if (id === 'ALPH') alpha = true; } o = end; }
+    frames.push(parts); }
+  const chunks = [new Uint8Array([...s4('VP8X'), ...le(10, 4), 0x02 | (alpha ? 0x10 : 0), 0, 0, 0, ...le(W - 1, 3), ...le(H - 1, 3)]), new Uint8Array([...s4('ANIM'), ...le(6, 4), 0, 0, 0, 0, 0, 0])];
+  for (const parts of frames) { const len = 16 + parts.reduce((a, p) => a + p.length, 0); chunks.push(new Uint8Array([...s4('ANMF'), ...le(len, 4), 0, 0, 0, 0, 0, 0, ...le(W - 1, 3), ...le(H - 1, 3), ...le(ms, 3), 0x02]), ...parts); if (len & 1) chunks.push(new Uint8Array([0])); }
+  const body = chunks.reduce((a, c) => a + c.length, 0) + 4;
+  return new Blob([new Uint8Array([...s4('RIFF'), ...le(body, 4), ...s4('WEBP')]), ...chunks], { type: 'image/webp' });
+}
+/* GIF — 전체 팔레트(MMCQ 255색) + LZW */
+async function gifEncode(frames, W, H, delay, onp) {
+  const samp = []; frames.forEach((f, k) => { if (k % 6) return; for (let i = 0; i < f.data.length; i += 4 * 29) samp.push([f.data[i], f.data[i + 1], f.data[i + 2]]); });
+  const pal = []; for (let i = 0; i < 24; i++) { const v = Math.round(i * 255 / 23); pal.push([v, v, v]); }   // 흰 글씨·검은 판이 회색으로 뭉개지지 않게 회색 사다리를 먼저
+  pal.push(...mmcq(samp, 232).slice(0, 232)); while (pal.length < 256) pal.push([0, 0, 0]);
+  const cache = new Int16Array(32768).fill(-1), near = (r, g, b) => { const k = (r >> 3) << 10 | (g >> 3) << 5 | b >> 3; if (cache[k] >= 0) return cache[k]; let bi = 0, bd = 1e9; for (let i = 0; i < 256; i++) { const p = pal[i], d = (p[0] - r) ** 2 + (p[1] - g) ** 2 + (p[2] - b) ** 2; if (d < bd) { bd = d; bi = i; } } return (cache[k] = bi); };
+  const out = []; const w16 = n => out.push(n & 255, n >> 8 & 255);
+  out.push(...[...'GIF89a'].map(c => c.charCodeAt(0))); w16(W); w16(H); out.push(0xF7, 0, 0); pal.forEach(p => out.push(p[0], p[1], p[2]));
+  out.push(0x21, 0xFF, 0x0B, ...[...'NETSCAPE2.0'].map(c => c.charCodeAt(0)), 3, 1, 0, 0, 0);
+  for (let f = 0; f < frames.length; f++) {
+    const d = frames[f].data, idx = new Uint8Array(W * H); for (let i = 0, j = 0; i < idx.length; i++, j += 4) idx[i] = near(d[j], d[j + 1], d[j + 2]);
+    out.push(0x21, 0xF9, 4, 0x04); w16(delay); out.push(0, 0); out.push(0x2C); w16(0); w16(0); w16(W); w16(H); out.push(0);
+    lzw(idx, 8, out); onp && onp((f + 1) / frames.length); if (f % 3 === 0) await new Promise(r => setTimeout(r, 0));
+  }
+  out.push(0x3B); return new Blob([new Uint8Array(out)], { type: 'image/gif' });
+}
+function lzw(idx, min, out) {                     // omggif와 같은 순서로 코드 크기를 키운다
+  out.push(min); const clear = 1 << min, eoi = clear + 1; let size = min + 1, next = eoi + 1, dict = new Map(), buf = 0, bits = 0, block = [];
+  const emit = c => { buf |= c << bits; bits += size; while (bits >= 8) { block.push(buf & 255); buf >>>= 8; bits -= 8; if (block.length === 255) { out.push(255, ...block); block = []; } } };
+  emit(clear); let cur = idx[0];
+  for (let i = 1; i < idx.length; i++) { const k = idx[i], key = cur << 8 | k, v = dict.get(key);
+    if (v !== undefined) { cur = v; continue; }
+    emit(cur);
+    if (next === 4096) { emit(clear); next = eoi + 1; size = min + 1; dict = new Map(); }
+    else { if (next >= (1 << size)) size++; dict.set(key, next++); }
+    cur = k; }
+  emit(cur); emit(eoi); if (bits > 0) block.push(buf & 255); if (block.length) out.push(block.length, ...block); out.push(0);
+}
+
+/* 시작 */
+syncButtons();
+const hv = new URLSearchParams(location.hash.slice(1));   // 예: #v=영상ID&mode=lp — 미리보기·시연용
+if (hv.get('mode')) { mode = hv.get('mode'); syncButtons(); }
+if (hv.get('v')) items = [{ type: 'yt', id: hv.get('v') }].concat(items.filter(t => t.id !== hv.get('v')));
+items.forEach(t => { if (!t.title) ytMeta(t); });
+if (items.length) { buildQueue(false); load(0, false); }
+if (hv.has('selftest')) setTimeout(async () => {          // 개발용: #v=…&selftest=gif|webp → 결과를 base64로 DOM에
+  fmt = hv.get('selftest'); await $('bMake').onclick(); const r = new FileReader(); r.onload = () => { const pre = document.createElement('pre'); pre.id = 'selftest'; pre.textContent = r.result; document.body.appendChild(pre); }; r.readAsDataURL(outBlob);
+}, 3000);
+</script>
+</body></html>
