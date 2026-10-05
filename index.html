@@ -79,10 +79,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .list .la{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list li.blocked{opacity:.4}
 .list .del{width:36px;height:36px;color:var(--sub)}
-.fmt{display:flex;gap:8px;margin-bottom:12px}
-.fmt button{flex:1;border-radius:12px;padding:12px;font-weight:600;background:color-mix(in srgb,var(--fg) 10%,transparent)}
-.fmt button.on{background:var(--fg);color:var(--bg)}
-.fmt button:disabled{opacity:.35;cursor:not-allowed}
+.fmtrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:14px;color:var(--sub)}
+#fmt button:disabled{opacity:.35;cursor:not-allowed}
 #preview{width:100%;border-radius:14px;margin-top:12px;display:none}
 .prog{height:4px;border-radius:4px;background:var(--track);overflow:hidden;margin-top:12px;display:none}.prog i{display:block;height:100%;width:0;background:var(--fg)}
 #scrim{position:fixed;inset:0;z-index:4;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s}
@@ -133,11 +131,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 <section class="sheet" id="sList"><div class="grab"></div><div class="lh"><h3>재생 목록</h3><button class="btn ghost" id="bClear">모두 지우기</button></div><ul class="list" id="list"></ul></section>
 <section class="sheet" id="sSave">
   <div class="grab"></div><h3>움직이는 카드</h3>
-  <div class="fmt" id="fmt"><button data-f="webp">WebP · 고화질 저용량</button><button data-f="gif">GIF</button></div>
-  <button class="btn" id="bMake" style="width:100%">지금 화면으로 만들기 (4초)</button>
+  <div class="fmtrow"><span>파일 형식</span><div class="modes" id="fmt" role="radiogroup" aria-label="파일 형식"><button data-f="webp" role="radio">WebP</button><button data-f="gif" role="radio">GIF</button></div></div>
+  <button class="btn" id="bMake" style="width:100%">지금 화면으로 저장 (4초)</button>
   <div class="prog" id="prog"><i></i></div>
   <img id="preview" alt="">
-  <div class="row" id="outRow" style="display:none"><button class="chip" id="bShare">공유하기</button><button class="chip" id="bDown">저장하기</button></div>
+  <div class="row" id="outRow" style="display:none"><button class="chip" id="bShare">공유하기</button><button class="chip" id="bDown">기기에 내려받기</button></div>
   <p class="hint" id="fmtHint"></p>
 </section>
 <div id="toast"></div>
@@ -485,7 +483,7 @@ requestAnimationFrame(frame);
 /* ═══ 움직이는 카드 저장 — WebP(기본) / GIF(아이폰 등 WebP를 못 만드는 브라우저) ═══ */
 const canWebP = (() => { try { const c = document.createElement('canvas'); c.width = c.height = 2; return c.toDataURL('image/webp').startsWith('data:image/webp'); } catch (e) { return false; } })();
 let fmt = canWebP ? 'webp' : 'gif', outBlob = null;
-function syncFmt() { document.querySelectorAll('#fmt button').forEach(b => { b.classList.toggle('on', b.dataset.f === fmt); if (b.dataset.f === 'webp') b.disabled = !canWebP; }); $('fmtHint').textContent = canWebP ? 'WebP는 GIF보다 선명하고 가볍습니다. 카카오톡·인스타그램에는 GIF가 더 잘 움직일 수 있습니다.' : '이 브라우저(아이폰·아이패드 등)는 WebP를 만들 수 없어 GIF로 저장합니다.'; }
+function syncFmt() { document.querySelectorAll('#fmt button').forEach(b => { b.classList.toggle('on', b.dataset.f === fmt); b.setAttribute('aria-checked', b.dataset.f === fmt); if (b.dataset.f === 'webp') b.disabled = !canWebP; }); $('fmtHint').textContent = canWebP ? 'WebP는 GIF보다 선명하고 가볍습니다. 카카오톡·인스타그램에는 GIF가 더 잘 움직일 수 있습니다.' : '이 브라우저(아이폰·아이패드 등)는 WebP를 만들 수 없어 GIF로 저장합니다.'; }
 document.querySelectorAll('#fmt button').forEach(b => b.onclick = () => { if (!b.disabled) { fmt = b.dataset.f; syncFmt(); } });
 $('bSave').onclick = () => { if (cur < 0) { toast('먼저 노래를 넣어 주세요'); return; } syncFmt(); $('outRow').style.display = 'none'; $('preview').style.display = 'none'; openSheet('sSave'); };
 function drawCard(x, W, H, ph) {                  // ph: 0~1 한 바퀴
@@ -502,6 +500,14 @@ function drawCard(x, W, H, ph) {                  // ph: 0~1 한 바퀴
   const by = ty + W * .14; x.fillStyle = light ? 'rgba(44,50,54,.18)' : 'rgba(237,241,243,.25)'; rr(x, mx, by, W - mx * 2, W * .008, W * .004); x.fill(); x.fillStyle = fg; rr(x, mx, by, (W - mx * 2) * pr, W * .008, W * .004); x.fill();
   x.beginPath(); x.arc(mx + (W - mx * 2) * pr, by + W * .004, W * .014, 0, 7); x.fill();
   x.globalAlpha = .65; x.font = `500 ${W * .03}px system-ui`; x.fillText(fmtT(pr * d), mx, by + W * .055); x.textAlign = 'right'; x.fillText(fmtT(d), W - mx, by + W * .055); x.globalAlpha = 1;
+  // 조작 줄 — 화면과 같은 아이콘. 섞기·반복은 꺼진 모습, 가운데는 재생 중(일시정지 모양). 소리 크기는 넣지 않는다
+  const cy = by + W * .2, sm = W * .062, md = W * .072, bR = W * .1, ic = (d, cx, sz, col, line) => { x.save(); x.translate(cx - sz / 2, cy - sz / 2); x.scale(sz / 24, sz / 24); const pth = new Path2D(d);
+    if (line) { x.strokeStyle = col; x.lineWidth = 2; x.lineCap = x.lineJoin = 'round'; x.stroke(pth); } else { x.fillStyle = col; x.fill(pth); } x.restore(); }, off = light ? 'rgba(44,50,54,.6)' : 'rgba(237,241,243,.6)';
+  ic('M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5', mx + sm / 2, sm, off, 1);
+  ic('M6 5h2v14H6zM20 5v14L9 12z', W * .3, md, fg);
+  x.fillStyle = fg; x.beginPath(); x.arc(W / 2, cy, bR, 0, 7); x.fill(); ic('M7 5h4v14H7zM13 5h4v14h-4z', W / 2, W * .085, p[0].hex);
+  ic('M16 5h2v14h-2zM4 5v14l11-7z', W * .7, md, fg);
+  ic('M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3', W - mx - sm / 2, sm, off, 1);
 }
 $('bMake').onclick = async () => {
   const N = 48, gif = fmt === 'gif', W = gif ? 360 : 720, H = Math.round(W * 16 / 9), c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true });
