@@ -11,6 +11,7 @@
 
 ## 확인
 
+- 다시 만들기·디자인 수치의 기준서: `PROMPT.md` (코드가 바뀌면 같이 고친다)
 - 화면: `chrome --headless=new --window-size=500,980 --screenshot=out.png "file:///…/index.html#v=<영상ID>&mode=lp"` (mode = cover · lp · tape)
 - 저장 결과: 주소 끝에 `&selftest=gif` 또는 `webp` → `--dump-dom`의 `<pre id="selftest">`에 base64 결과 (Pillow로 열어 장 수 확인)
 - 유튜브 재생은 `file://`에서 막힌다 — 공개 주소에서 확인한다
