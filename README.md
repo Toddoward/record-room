@@ -30,11 +30,9 @@
 ## 저장소
 
 - `index.html` — 앱 전부 (한 파일, 외부 라이브러리 없음 — 유튜브 재생 도구만)
-- `PROMPT.md` — 이 앱을 처음부터 다시 만들 수 있는 역설계 제작 프롬프트 (디자인 규칙·수치·기능·배포)
-- `PROMPT-BRIEF.md` — 같은 앱의 짧은 평문 프롬프트 (핵심 기능 + 디자인 용어로 묘사)
 - `qr.png` — 위 주소의 QR
 - `main`에 푸시하면 GitHub Pages로 바로 공개된다
 
 ## 만든 계기
 
-커버 색을 뽑는 방식은 [trackpic](https://github.com/pic-kn/trackpic)과 같은 절차(가운데 70% · 중앙값 자르기 25색 · 주색에 가까운 색 · 밝기순 5색)를 다시 작성했고, LP 플레이어는 [캔따개 플레이리스트](https://github.com/dearlovedive/playlist)에서 영감을 받았다.
+커버 색을 뽑는 방식은 [trackpic](https://github.com/pic-kn/trackpic)과 같은 절차(가운데 70% · 중앙값 자르기 25색 · 주색에 가까운 색 · 밝기순 5색)를 다시 작성했다.
