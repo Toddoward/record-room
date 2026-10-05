@@ -393,7 +393,11 @@ $('bImg').onclick = () => $('img').click();
 $('img').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const r = new FileReader();
   r.onload = () => setMyCover(r.result, true).then(() => { closeSheets(); toast('커버 사진을 바꿨습니다'); }, () => toast('이 파일은 사진으로 열 수 없습니다')); r.readAsDataURL(f); };
 $('bImgUrl').onclick = () => { const u = $('imgUrl').value.trim(); if (!/^https?:\/\//.test(u)) { toast('https:// 로 시작하는 사진 주소를 넣어 주세요'); return; }
-  setMyCover(u, true).then(() => { $('imgUrl').value = ''; closeSheets(); toast('커버 사진을 바꿨습니다'); }, () => toast('이 주소의 사진은 가져올 수 없습니다 — 사진을 저장해 "사진 올리기"로 넣어 주세요', 3600)); };
+  $('bImgUrl').disabled = true; toast('사진을 가져오는 중…');
+  // 대부분의 사진 서버는 다른 사이트의 읽기(CORS)를 허용하지 않는다 → 막히면 이미지 중계(wsrv.nl, CORS 허용)로 한 번 더
+  setMyCover(u, true).catch(() => setMyCover(`https://wsrv.nl/?url=${encodeURIComponent(u)}&w=1200&h=1200&fit=inside&output=jpg`, true))
+    .then(() => { $('imgUrl').value = ''; closeSheets(); toast('커버 사진을 바꿨습니다'); }, () => toast('이 주소의 사진은 가져올 수 없습니다 — 사진을 저장해 "사진 올리기"로 넣어 주세요', 3600))
+    .finally(() => { $('bImgUrl').disabled = false; }); };
 $('bImgDel').onclick = clearMyCover;
 { const d = store.get('mycover', null); if (d) setMyCover(d, false).catch(() => store.set('mycover', null)); }
 
