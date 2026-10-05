@@ -182,26 +182,9 @@ function extractPalette(src) {               // src: {img, sx, sy, sw, sh}
   let p; for (const m of [25, 15, 8, 5, 3]) { p = pick(m); if (p.length >= 5) break; }
   const base = p[0], { h, s, l } = rgb2hsl(base.r, base.g, base.b);
   while (p.length < 5) { const [r, g, b] = hsl2rgb(h, Math.max(.1, s), Math.max(.1, Math.min(.9, l + p.length * .16 - .32))); p.push({ r, g, b, h, s, lum: lumOf(r, g, b) }); }
-  const out = p.sort((a, b) => a.lum - b.lum).slice(0, 5).map(c => ({ ...c, hex: hex(c.r, c.g, c.b) }));
-  out.accents = accentsOf(raw, dom); out.paper = paperOf(raw[0]);
-  return out;
+  return p.sort((a, b) => a.lum - b.lum).slice(0, 5).map(c => ({ ...c, hex: hex(c.r, c.g, c.b) }));
 }
 let PAL = null;
-/* 카세트 스티커용 — 사진에서 채도 있는 색을 색상이 겹치지 않게 3개, 모자라면 주색 옆 색상으로 채운다. 레트로 띠답게 채도·밝기를 맞춘다 */
-function accentsOf(raw, dom) {
-  const hd = (a, b) => { const v = Math.abs(a - b); return Math.min(v, 1 - v); };
-  const cand = raw.map(([r, g, b]) => ({ r, g, b, ...rgb2hsl(r, g, b) })).filter(c => c.s >= .28 && c.l >= .22 && c.l <= .82);
-  const out = []; for (const c of cand) if (out.every(o => hd(o.h, c.h) >= .045)) { out.push(c); if (out.length === 3) break; }
-  if (!out.length) {                 // 흑백에 가까운 사진 — 없는 색을 지어내지 않고 무채색 띠
-    return [.32, .55, .76].map(l => { const v = Math.round(l * 255); return { r: v, g: v, b: v, hex: hex(v, v, v) }; });
-  }
-  const base = out[0];
-  for (let k = 1; out.length < 3; k++) out.push({ h: (base.h + (k % 2 ? 1 : -1) * .07 * Math.ceil(k / 2) + 1) % 1, s: base.s, l: .6 });
-  return out.map(c => { const s = Math.min(.78, Math.max(.5, c.s)), l = Math.min(.66, Math.max(.5, c.l)), [r, g, b] = hsl2rgb(c.h, s, l); return { r, g, b, hex: hex(r, g, b) }; });
-}
-function paperOf(rgb) {            // 주색 색상을 아주 옅게 띤 크림색 종이
-  const { h, s } = rgb2hsl(...rgb), [r, g, b] = hsl2rgb(h, Math.min(.32, Math.max(.12, s * .5)), .93); return { r, g, b, hex: hex(r, g, b), lum: lumOf(r, g, b) };
-}
 const relLum = (r, g, b) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
 function contrastOn(c, bg) {                 // 강조색이 배경 위에서 3:1 이상 보이도록 밝기만 옮긴다 (색상은 그대로)
   const L2 = relLum(bg.r, bg.g, bg.b), ratio = (r, g, b) => { const L1 = relLum(r, g, b); return (Math.max(L1, L2) + .05) / (Math.min(L1, L2) + .05); };
@@ -276,20 +259,20 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
   x.save(); rr(x, X, Y, W, H, rad); x.clip(); x.fillStyle = 'rgba(255,255,255,.035)'; for (let yy = Y + W * .006; yy < Y + H; yy += W * .0125) x.fillRect(X, yy, W, Math.max(1.5, W * .0038)); x.restore();
   x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; rr(x, X + S * .004, Y + S * .004, W - S * .008, H - S * .008, rad * .8); x.stroke();
   // 스티커
-  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, base = (PAL && PAL.paper ? PAL.paper.hex : '#f3efe4'), acc3 = PAL && PAL.accents ? PAL.accents : [{ hex: '#9b6bb3' }, { hex: '#e2708f' }, { hex: '#ef9a62' }];
+  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, base = P[0].hex, acc3 = [P[4], P[3], P[2]];   // 종이 = 팔레트 배경색, 띠 = 나머지 중 종이와 밝기 차가 큰 셋
   x.save(); rr(x, lX, lY, lW, lH, S * .01); x.clip(); x.fillStyle = base; x.fillRect(lX, lY, lW, lH);
   const iw = lW * .3; drawImg(x, cv, lX, lY, Math.max(iw, lH), lH);   // 사진 → 스티커 색으로 번짐
   const fd = x.createLinearGradient(lX + iw * .45, 0, lX + iw * 1.05, 0); fd.addColorStop(0, base + '00'); fd.addColorStop(1, base); x.fillStyle = fd; x.fillRect(lX + iw * .45, lY, Math.max(iw, lH), lH);
   // 레트로 띠 — 창 뒤를 가로지르는 굵은 띠 하나 + 얇은 띠 둘, 사진 쪽에서 번져 나온다
   const fx0 = lX + iw * .45, fx1 = lX + iw * 1.05, bT = .37;
   [[bT, .3], [.68, .06], [.75, .065]].forEach(([v, h], k) => { const c = acc3[k].hex, g = x.createLinearGradient(fx0, 0, fx1, 0); g.addColorStop(0, c + '00'); g.addColorStop(1, c); x.fillStyle = g; x.fillRect(fx0, lY + lH * v, lX + lW - fx0, lH * h); });
-  // 띠 위 글자 칸을 줄 두 개로 3등분 — 맨 윗칸은 여백, 제목은 둘째 줄 위에, 가수는 띠 위에 앉는다
-  const ink = '#2a2a30', tx = lX + iw * 1.02, tR = lX + lW * .965, tw = tR - tx, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
+  // 띠 위 글자 칸을 줄 두 개로 3등분 — 제목은 둘째 줄 위에(윗줄을 넘어가도 된다), 가수는 그 줄 바로 아래. 글자는 가운데 정렬
+  const ink = P[0].lum > 180 ? '#2c3236' : '#edf1f3', tx = lX + iw * 1.02, tR = lX + lW * .965, tw = tR - tx, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
   x.fillStyle = ink; x.globalAlpha = .28; [l1, l2].forEach(ly => x.fillRect(tx, ly, tR - tx, Math.max(1, S * .0016))); x.globalAlpha = 1;
-  x.textAlign = 'left'; x.textBaseline = 'alphabetic';
-  x.font = `700 ${H * .062}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, l2 - lH * .028);
-  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tx, lY + lH * (bT - .028)); x.globalAlpha = 1;
-  x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tx, lY + lH * .94); x.globalAlpha = 1;
+  const tc = (tx + tR) / 2; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
+  x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tc, l2 - lH * .028);
+  x.globalAlpha = .62; x.font = `600 ${H * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, artist || '', tw), tc, l2 + lH * .085); x.globalAlpha = 1;
+  x.font = `600 ${H * .042}px system-ui`; x.globalAlpha = .7; x.fillText('Normal Bias 120μs EQ', tc, lY + lH * .94); x.globalAlpha = 1;
   x.font = `800 ${H * .08}px system-ui`; x.textAlign = 'right'; x.fillText('A|60', tR, lY + lH * .95); x.textAlign = 'left';
   x.restore();
   // 창 — 검은 판 + 가운데 투명창으로 테이프 두께가 보인다
