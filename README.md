@@ -33,7 +33,7 @@ A one-page music player for when the usual streaming app feels too familiar. Bui
 - **Your own playlist** — mix YouTube videos, whole YouTube playlists, and MP3 files in one list
 - **Your photo is the album cover** — any photo becomes the cover, and the whole screen takes on its colors
 - **Your own player** — switch between a cover view, a spinning LP, and a cassette tape
-- **Keep the moment** — save what's playing as a 4‑second moving card and share it straight from your phone
+- **Keep the moment** — save what's playing as a 5–15 second moving card — MP4 for Instagram Stories and Karrot — and share it straight from your phone
 
 ## Features
 
@@ -43,7 +43,7 @@ A one-page music player for when the usual streaming app feels too familiar. Bui
 |---|---|
 | **Cover** | Colors are picked from the cover and fill the screen; the rest drift softly in the background |
 | **LP** | The record spins; the tonearm swings onto the record when you play and back when you pause |
-| **Cassette** | A label printed with your photo and retro stripes in its colors; the reels spin and the tape thickness shifts as the song plays |
+| **Cassette** | A label printed with your photo and retro stripes in its colors; the tape thickness shifts as the song plays, and the reel with less tape spins faster |
 
 ### 2. Add songs
 
@@ -54,11 +54,12 @@ A one-page music player for when the usual streaming app feels too familiar. Bui
 ### 3. My cover photo
 
 - Upload a photo or paste an image link → it becomes the cover for **every song**, and colors come from that photo
-- Find it in the **＋** panel; it stays until you change it or tap **기본 커버로** (Default cover)
+- Tap the photo button at the bottom-right of the artwork; it stays until you change it or tap **기본 커버로** (Default cover)
 
 ### 4. Moving card
 
-- Saves the current screen as a **4‑second animated WebP** (GIF on browsers that can't make WebP, such as iPhone/iPad Safari)
+- Saves the current screen as a 9:16 card: **MP4** (for Instagram Stories and Karrot, where GIF/WebP won't play), animated WebP, or GIF
+- Length: **5, 10, or 15 seconds**. MP4 needs a recent Chrome or Safari
 - Choose whether to show the playback buttons on the card (off by default, your choice is remembered)
 - Share through your phone's share sheet, or download it
 
@@ -67,12 +68,13 @@ A one-page music player for when the usual streaming app feels too familiar. Bui
 - In order / shuffle, repeat off / all / one, **지금 섞기** (Shuffle now), volume
 - Keyboard: `Space` play/pause, `←` `→` previous/next
 - Control from your phone's lock screen
+- Laptops and phones held sideways show the artwork on the left and the controls on the right
 
 ## Quick start
 
 1. Open **https://toddoward.github.io/record-room/** (or scan the QR at the top with your phone)
 2. Tap **＋** and add a YouTube link, a playlist link, or MP3 files
-3. Pick **커버 / LP / 테이프** (Cover / LP / Tape) at the top, and optionally set **내 커버 사진** (My cover photo) in the ＋ panel
+3. Pick **커버 / LP / 테이프** (Cover / LP / Tape) at the top, and optionally set your own cover with the photo button on the artwork
 4. Tap **움직이는 카드 저장** (Save moving card) to keep the moment
 
 > The interface is in Korean; labels above are shown with their English meaning.

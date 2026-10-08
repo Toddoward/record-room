@@ -6,23 +6,38 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>레코드룸 — 내 노래를 커버·LP·테이프로</title>
 <style>
-:root{--bg:#1f2329;--fg:#eef1f4;--sub:rgba(238,241,244,.62);--track:rgba(238,241,244,.22);--accent:#9fb4c7;--c1:#33414f;--c2:#4f677d;--c3:#7f98ae;--c4:#b9c9d6}
+/* 색 변수는 @property로 등록해 곡이 바뀔 때 서서히 넘어간다 */
+@property --bg{syntax:'<color>';inherits:true;initial-value:#1f2329}
+@property --fg{syntax:'<color>';inherits:true;initial-value:#edf1f3}
+@property --sub{syntax:'<color>';inherits:true;initial-value:rgba(237,241,243,.64)}
+@property --track{syntax:'<color>';inherits:true;initial-value:rgba(237,241,243,.22)}
+@property --accent{syntax:'<color>';inherits:true;initial-value:#9fb4c7}
+@property --sheet{syntax:'<color>';inherits:true;initial-value:#393d42}
+@property --c1{syntax:'<color>';inherits:true;initial-value:#33414f}
+@property --c2{syntax:'<color>';inherits:true;initial-value:#4f677d}
+@property --c3{syntax:'<color>';inherits:true;initial-value:#7f98ae}
+@property --c4{syntax:'<color>';inherits:true;initial-value:#b9c9d6}
+:root{--ease:cubic-bezier(.33,0,.2,1);
+  transition:--bg 1.4s var(--ease),--fg 1.4s var(--ease),--sub 1.4s var(--ease),--track 1.4s var(--ease),--accent 1.4s var(--ease),--sheet 1.4s var(--ease),
+    --c1 1.6s var(--ease),--c2 1.6s var(--ease),--c3 1.6s var(--ease),--c4 1.6s var(--ease)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
-body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;transition:background-color 1.2s ease}
+body{background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
-/* 앰비언트 — 대표색이 아닌 나머지 색이 은은하게 흐른다 */
-#amb{position:fixed;inset:-25%;z-index:0;pointer-events:none;filter:blur(80px);opacity:.5}
-#amb i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;opacity:.5;transition:background-color 1.6s ease}
-#amb i:nth-child(1){background:var(--c1);left:0;top:0;animation:a1 26s ease-in-out infinite alternate}
-#amb i:nth-child(2){background:var(--c2);right:0;top:10%;animation:a2 31s ease-in-out infinite alternate}
-#amb i:nth-child(3){background:var(--c3);left:10%;bottom:0;animation:a3 29s ease-in-out infinite alternate}
-#amb i:nth-child(4){background:var(--c4);right:5%;bottom:5%;animation:a4 35s ease-in-out infinite alternate;opacity:.35}
+[hidden]{display:none!important}
+/* 앰비언트 — 대표색이 아닌 나머지 색이 은은하게 흐른다 (색은 글자 대비를 지키도록 계산해서 넣는다) */
+#amb{position:fixed;inset:-25%;z-index:0;pointer-events:none;filter:blur(80px);opacity:.5;overflow:hidden}
+#amb i{position:absolute;width:60vmax;height:60vmax;border-radius:50%;will-change:transform}
+#amb i:nth-child(1){background:var(--c1);left:8%;top:6%;animation:a1 26s ease-in-out infinite alternate}
+#amb i:nth-child(2){background:var(--c2);right:4%;top:22%;animation:a2 31s ease-in-out infinite alternate}
+#amb i:nth-child(3){background:var(--c3);left:16%;bottom:2%;animation:a3 29s ease-in-out infinite alternate}
+#amb i:nth-child(4){background:var(--c4);right:12%;bottom:12%;animation:a4 35s ease-in-out infinite alternate;opacity:.7}
+@media (prefers-reduced-motion:reduce){#amb i{animation:none}}
 @keyframes a1{to{transform:translate(22vmax,18vmax) scale(1.2)}}
 @keyframes a2{to{transform:translate(-20vmax,22vmax) scale(.85)}}
 @keyframes a3{to{transform:translate(18vmax,-20vmax) scale(1.15)}}
 @keyframes a4{to{transform:translate(-24vmax,-14vmax) scale(.9)}}
-main{position:relative;z-index:1;max-width:460px;margin:0 auto;min-height:100vh;padding:max(14px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+main{position:relative;z-index:1;max-width:460px;margin:0 auto;min-height:100vh;min-height:100svh;padding:max(14px,env(safe-area-inset-top)) 22px max(24px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .ib{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--fg);position:relative;transition:transform .15s,color .3s}
 .ib:active{transform:scale(.9)}
@@ -30,12 +45,21 @@ main{position:relative;z-index:1;max-width:460px;margin:0 auto;min-height:100vh;
 #bOrder,#bRepeat{color:var(--sub)}
 .ib.on,#bOrder.on,#bRepeat.on{color:var(--accent)}
 .ib.on::after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
-.ib .one{position:absolute;font-size:9px;font-weight:800;top:13px;left:50%;transform:translateX(-50%)}
+.ib .one{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font-size:9px;font-weight:800;line-height:1}
 .modes{display:flex;background:color-mix(in srgb,var(--fg) 10%,transparent);border-radius:99px;padding:3px}
 .modes button{color:var(--sub);font-size:14px;font-weight:600;padding:8px 15px;border-radius:99px;transition:background .3s,color .3s}
 .modes button.on{background:var(--fg);color:var(--bg)}
-.stage{margin:20px -6px 14px;aspect-ratio:1/1;position:relative}
+/* 그림은 화면 높이에 맞춰 줄어든다 — 짧은 화면에서도 조작 줄까지 한 화면에 */
+.stage{width:min(calc(100% + 12px),max(240px,calc(100vh - 410px)));width:min(calc(100% + 12px),max(240px,calc(100svh - 410px)));aspect-ratio:1/1;align-self:center;margin:20px 0 14px;position:relative}
 #art{width:100%;height:100%;display:block}
+/* 커버 사진 바꾸기 — 바꾸는 대상(그림) 바로 위에 */
+/* 커버 모서리 안쪽(커버는 그림의 7%~93%), LP·테이프에서는 비어 있는 오른쪽 아래 */
+.pic{position:absolute;right:8.5%;bottom:8.5%;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--fg);
+  background:color-mix(in srgb,var(--bg) 62%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:0 2px 10px rgba(0,0,0,.18),inset 0 0 0 1px color-mix(in srgb,var(--fg) 14%,transparent);transition:transform .15s}
+.pic:active{transform:scale(.9)}
+.pic svg{width:22px;height:22px}
+.pic.on::after{content:"";position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--bg) 80%,transparent)}
 .meta{min-height:58px}
 .title{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .artist{color:var(--sub);font-size:15px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -57,8 +81,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .chip{flex:1;border-radius:14px;padding:13px 10px;font-size:14px;font-weight:600;background:color-mix(in srgb,var(--fg) 10%,transparent);color:var(--fg);transition:transform .15s}
 .chip:active{transform:scale(.97)}
 /* 아래에서 올라오는 판 */
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:5;max-width:480px;margin:0 auto;background:color-mix(in srgb,var(--bg) 88%,#fff 12%);border-radius:24px 24px 0 0;padding:10px 20px max(20px,env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);max-height:78vh;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
-.sheet.open{transform:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:5;max-width:480px;margin:0 auto;background:var(--sheet);border-radius:24px 24px 0 0;padding:10px 20px max(20px,env(safe-area-inset-bottom));transform:translateY(105%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),visibility 0s .35s;max-height:86vh;max-height:86svh;overflow:auto;overscroll-behavior:contain;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.sheet.open{transform:none;visibility:visible;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
 .sheet .grab{width:40px;height:5px;border-radius:5px;background:var(--track);margin:0 auto 14px}
 .sheet h3{font-size:17px;margin-bottom:12px}
 .lh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.lh h3{margin:0}.lh .btn{padding:8px 14px;font-size:14px}
@@ -81,13 +105,25 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
 .list .del{width:36px;height:36px;color:var(--sub)}
 .fmtrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:14px;color:var(--sub)}
 #fmt button:disabled{opacity:.35;cursor:not-allowed}
-#preview{width:100%;border-radius:14px;margin-top:12px;display:none}
+#preview,#previewV{display:block;max-width:100%;max-height:46vh;max-height:46svh;margin:12px auto 0;border-radius:14px}
 .prog{height:4px;border-radius:4px;background:var(--track);overflow:hidden;margin-top:12px;display:none}.prog i{display:block;height:100%;width:0;background:var(--fg)}
 #scrim{position:fixed;inset:0;z-index:4;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s}
 #scrim.on{opacity:1;pointer-events:auto}
 #toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:var(--fg);color:var(--bg);padding:11px 18px;border-radius:99px;font-size:14px;font-weight:600;opacity:0;transition:.3s;z-index:9;pointer-events:none;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 #ytbox{position:fixed;left:-480px;top:0;width:240px;height:135px}   /* 소리만 쓴다 — 화면 밖 */
+/* 넓은 가로 화면(노트북·프로젝터): 그림 왼쪽, 조작 오른쪽 */
+@media (orientation:landscape) and (min-width:640px){
+  main{max-width:none;display:grid;justify-content:center;align-content:center;column-gap:56px;
+    grid-template-columns:min(52vw,calc(100vh - 80px)) 380px;grid-template-columns:min(52vw,calc(100svh - 80px)) 380px;grid-template-rows:auto auto}
+  .stage{grid-column:1;grid-row:1/3;width:100%;margin:0;align-self:center}
+  .top{grid-column:2;grid-row:1;align-self:end}
+  .panel{grid-column:2;grid-row:2;align-self:start;margin-top:28px}
+}
+@media (orientation:landscape) and (min-width:640px) and (max-height:520px){   /* 가로로 눕힌 휴대폰 */
+  main{column-gap:32px;padding-top:max(8px,env(safe-area-inset-top));padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .panel{margin-top:6px}.meta{min-height:0}.seek{margin-top:6px}.ctrls{margin-top:2px}.vol{margin-top:4px}.row{margin-top:8px}.chip{padding:10px}
+}
 </style>
 </head>
 <body>
@@ -98,18 +134,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
     <div class="modes" id="modes"><button data-m="cover">커버</button><button data-m="lp">LP</button><button data-m="tape">테이프</button></div>
     <button class="ib" id="bAdd" aria-label="노래 넣기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
   </div>
-  <div class="stage"><canvas id="art"></canvas></div>
+  <div class="stage"><canvas id="art"></canvas><button class="pic" id="bPic" aria-label="커버 사진 바꾸기"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg></button></div>
+  <section class="panel">
   <div class="meta"><div class="title" id="tTitle">레코드룸</div><div class="artist" id="tArtist">오른쪽 위 ＋ 버튼 또는 재생 버튼</div></div>
   <div class="seek"><input type="range" id="seek" min="0" max="1000" value="0" aria-label="재생 위치"><div class="time"><span id="tCur">0:00</span><span id="tDur">0:00</span></div></div>
   <div class="ctrls">
-    <button class="ib" id="bOrder" aria-label="재생 순서"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+    <button class="ib" id="bOrder" aria-label="재생 순서"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
     <button class="ib mid" id="bPrev" aria-label="이전"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
     <button class="big" id="bPlay" aria-label="재생"><svg viewBox="0 0 24 24" fill="currentColor" id="iPlay"><path d="M8 5v14l11-7z"/></svg></button>
     <button class="ib mid" id="bNext" aria-label="다음"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
-    <button class="ib" id="bRepeat" aria-label="반복"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg><span class="one" id="iOne" hidden>1</span></button>
+    <button class="ib" id="bRepeat" aria-label="반복"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg><span class="one" id="iOne" hidden>1</span></button>
   </div>
   <div class="vol"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg><input type="range" id="vol" min="0" max="100" value="50" aria-label="소리 크기"></div>
   <div class="row"><button class="chip" id="bShuffleNow">지금 섞기</button><button class="chip" id="bSave">움직이는 카드 저장</button></div>
+  </section>
 </main>
 
 <div id="scrim"></div>
@@ -121,21 +159,24 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border:0;border-radiu
   <button class="btn ghost" id="bFile" style="width:100%">MP3 파일 넣기</button>
   <input type="file" id="file" accept="audio/*,.mp3,.m4a" multiple hidden>
   <p class="hint">파일 안에 든 커버 그림과 제목을 읽습니다. 파일은 이 기기를 벗어나지 않습니다.</p>
-  <div class="sep"></div>
-  <h3>내 커버 사진</h3>
-  <div class="field"><input id="imgUrl" placeholder="사진 주소 (https://…)" inputmode="url" autocomplete="off"><button class="btn" id="bImgUrl">넣기</button></div>
-  <div class="field" style="margin-top:8px"><button class="btn ghost" id="bImg" style="flex:1">사진 올리기</button><button class="btn ghost" id="bImgDel" hidden>기본 커버로</button></div>
+</section>
+<section class="sheet" id="sCover">
+  <div class="grab"></div><h3>커버 사진</h3>
+  <button class="btn" id="bImg" style="width:100%">사진 올리기</button>
   <input type="file" id="img" accept="image/*" hidden>
+  <div class="field" style="margin-top:10px"><input id="imgUrl" placeholder="또는 사진 주소 (https://…)" inputmode="url" autocomplete="off"><button class="btn ghost" id="bImgUrl">넣기</button></div>
+  <button class="btn ghost" id="bImgDel" style="width:100%;margin-top:10px" hidden>기본 커버로</button>
   <ul class="hint"><li>어떤 노래든 이 사진을 커버로, 색도 이 사진에서</li><li>바꾸거나 "기본 커버로"를 누르기 전까지 유지</li></ul>
 </section>
 <section class="sheet" id="sList"><div class="grab"></div><div class="lh"><h3>재생 목록</h3><button class="btn ghost" id="bClear">모두 지우기</button></div><ul class="list" id="list"></ul></section>
 <section class="sheet" id="sSave">
   <div class="grab"></div><h3>움직이는 카드</h3>
-  <div class="fmtrow"><span>파일 형식</span><div class="modes" id="fmt" role="radiogroup" aria-label="파일 형식"><button data-f="webp" role="radio">WebP</button><button data-f="gif" role="radio">GIF</button></div></div>
+  <div class="fmtrow"><span>파일 형식</span><div class="modes" id="fmt" role="radiogroup" aria-label="파일 형식"><button data-f="mp4" role="radio">MP4</button><button data-f="webp" role="radio">WebP</button><button data-f="gif" role="radio">GIF</button></div></div>
+  <div class="fmtrow"><span>길이</span><div class="modes" id="dur" role="radiogroup" aria-label="길이"><button data-s="5" role="radio">5초</button><button data-s="10" role="radio">10초</button><button data-s="15" role="radio">15초</button></div></div>
   <div class="fmtrow"><span>조작 버튼</span><div class="modes" id="ctl" role="radiogroup" aria-label="조작 버튼"><button data-c="0" role="radio">없음</button><button data-c="1" role="radio">있음</button></div></div>
-  <button class="btn" id="bMake" style="width:100%">지금 화면으로 저장 (4초)</button>
+  <button class="btn" id="bMake" style="width:100%">지금 화면으로 저장 (5초)</button>
   <div class="prog" id="prog"><i></i></div>
-  <img id="preview" alt="">
+  <img id="preview" alt="" hidden><video id="previewV" muted loop playsinline autoplay hidden></video>
   <div class="row" id="outRow" style="display:none"><button class="chip" id="bShare">공유하기</button><button class="chip" id="bDown">기기에 내려받기</button></div>
   <p class="hint" id="fmtHint"></p>
 </section>
@@ -189,30 +230,47 @@ function extractPalette(src) {               // src: {img, sx, sy, sw, sh}
   while (p.length < 5) { const [r, g, b] = hsl2rgb(h, Math.max(.1, s), Math.max(.1, Math.min(.9, l + p.length * .16 - .32))); p.push({ r, g, b, h, s, lum: lumOf(r, g, b) }); }
   return p.sort((a, b) => a.lum - b.lum).slice(0, 5).map(c => ({ ...c, hex: hex(c.r, c.g, c.b) }));
 }
-let PAL = null;
+/* 팔레트 → 색 토큰. 배경 = 가장 어두운 색. 글자 대비는 계산으로 지킨다:
+   주 글자 7:1 · 빛이 겹친 자리에서도 5:1 · 보조 글자 4.5:1 · 강조색 4.5:1 (배경과 판 모두) */
 const relLum = (r, g, b) => { const f = v => { v /= 255; return v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; }; return .2126 * f(r) + .7152 * f(g) + .0722 * f(b); };
-function contrastOn(c, bg) {                 // 강조색이 배경 위에서 3:1 이상 보이도록 밝기만 옮긴다 (색상은 그대로)
-  const L2 = relLum(bg.r, bg.g, bg.b), ratio = (r, g, b) => { const L1 = relLum(r, g, b); return (Math.max(L1, L2) + .05) / (Math.min(L1, L2) + .05); };
-  let { h, s, l } = rgb2hsl(c.r, c.g, c.b), rgb = [c.r, c.g, c.b]; const up = L2 < .3;
-  for (let i = 0; i < 40 && ratio(...rgb) < 3; i++) { l = Math.max(0, Math.min(1, l + (up ? .03 : -.03))); rgb = hsl2rgb(h, Math.max(s, .25), l); }
-  return hex(...rgb);
+const cr = (a, b) => { const x = relLum(...a), y = relLum(...b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+const mixA = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const lumA = c => lumOf(...c), hexA = c => hex(...c), rgbaA = (c, a) => `rgba(${c.map(v => Math.round(Math.max(0, Math.min(255, v)))).join(',')},${a})`;
+const shiftL = (c, d) => { const { h, s, l } = rgb2hsl(...c); return hsl2rgb(h, s, Math.max(0, Math.min(1, l + d))); };
+const LT = [237, 241, 243], DK = [44, 50, 54], WH = [255, 255, 255];
+const DEF_PAL = [[31, 35, 41], [51, 65, 79], [79, 103, 125], [127, 152, 174], [185, 201, 214]];
+function themeOf(p) {
+  let bg = p[0]; const rest = p.slice(1);
+  const fg = cr(LT, bg) >= cr(DK, bg) ? LT : DK, dir = fg === LT ? -1 : 1;
+  for (let i = 0; i < 50 && cr(fg, bg) < 7; i++) bg = shiftL(bg, .02 * dir);
+  const orbs = rest.map(c => { for (let i = 0; i < 30 && cr(fg, mixA(bg, c, .5)) < 5; i++) c = mixA(c, bg, .15); return c; });
+  const sheet = mixA(bg, WH, .12);
+  const worst = [bg, sheet, ...orbs.map(c => mixA(bg, c, .5))].reduce((w, c) => cr(fg, c) < cr(fg, w) ? c : w);
+  let subA = .62; while (subA < 1 && cr(mixA(worst, fg, subA), worst) < 4.5) subA += .02;
+  let ac = rest.reduce((m, c) => Math.abs(lumA(c) - lumA(bg)) > Math.abs(lumA(m) - lumA(bg)) ? c : m);
+  for (let i = 0; i < 60 && Math.min(cr(ac, bg), cr(ac, sheet)) < 4.5; i++) ac = shiftL(ac, -.02 * dir);
+  // 카세트 띠 = 종이(배경)와 밝기 차가 큰 셋, 밝은 순
+  const stripes = rest.slice().sort((a, b) => Math.abs(lumA(b) - lumA(bg)) - Math.abs(lumA(a) - lumA(bg))).slice(0, 3).sort((a, b) => lumA(b) - lumA(a));
+  return { bg, fg, subA, sheet, accent: ac, orbs, stripes, mid: p[2] };
 }
-function applyPalette(pal) {
-  if (!pal) return; PAL = pal; const bg = pal[0], light = bg.lum > 180, R = document.documentElement.style;
-  R.setProperty('--bg', bg.hex);
-  R.setProperty('--fg', light ? '#2C3236' : '#EDF1F3');
-  R.setProperty('--sub', light ? 'rgba(44,50,54,.62)' : 'rgba(237,241,243,.65)');
-  R.setProperty('--track', light ? 'rgba(44,50,54,.15)' : 'rgba(237,241,243,.25)');
-  pal.slice(1).forEach((c, i) => R.setProperty('--c' + (i + 1), c.hex));
-  const acc = pal.slice(1).reduce((a, c) => Math.abs(c.lum - bg.lum) > Math.abs(a.lum - bg.lum) ? c : a);
-  R.setProperty('--accent', contrastOn(acc, bg));
-  document.querySelector('meta[name=theme-color]').content = bg.hex;
+let TT = themeOf(DEF_PAL), TH = JSON.parse(JSON.stringify(TT));   // TT = 목표 색, TH = 그림이 쓰는 지금 색(서서히 따라감)
+function lerpTheme(a, b, k) {
+  for (const n of ['bg', 'fg', 'accent', 'mid', 'sheet']) a[n] = mixA(a[n], b[n], k);
+  a.orbs = a.orbs.map((c, i) => mixA(c, b.orbs[i], k)); a.stripes = a.stripes.map((c, i) => mixA(c, b.stripes[i], k)); a.subA += (b.subA - a.subA) * k;
 }
+function setTheme(t) {
+  TT = t; const R = document.documentElement.style;
+  const v = { bg: hexA(t.bg), fg: hexA(t.fg), sub: rgbaA(t.fg, t.subA.toFixed(2)), track: rgbaA(t.fg, .22), accent: hexA(t.accent), sheet: hexA(t.sheet) };
+  t.orbs.forEach((c, i) => v['c' + (i + 1)] = hexA(c));
+  for (const k in v) R.setProperty('--' + k, v[k]);
+  document.querySelector('meta[name=theme-color]').content = v.bg;
+}
+function applyPalette(pal) { if (pal) setTheme(themeOf(pal.map(c => [c.r, c.g, c.b]))); }
 
 /* ═══ 그리기 — 커버 · LP · 테이프 (화면과 저장이 같은 함수를 쓴다) ═══ */
 function rr(x, X, Y, W, H, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + W, Y, X + W, Y + H, r); x.arcTo(X + W, Y + H, X, Y + H, r); x.arcTo(X, Y + H, X, Y, r); x.arcTo(X, Y, X + W, Y, r); x.closePath(); }
 function drawImg(x, cv, X, Y, W, H) {          // cv.img의 정사각 잘린 영역을 채워 그린다
-  if (!cv) { const g = x.createLinearGradient(X, Y, X + W, Y + H); g.addColorStop(0, PAL ? PAL[2].hex : '#4f677d'); g.addColorStop(1, PAL ? PAL[4].hex : '#b9c9d6'); x.fillStyle = g; x.fillRect(X, Y, W, H); x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `${W * .32}px system-ui`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('♪', X + W / 2, Y + H / 2); return; }
+  if (!cv) { const g = x.createLinearGradient(X, Y, X + W, Y + H); g.addColorStop(0, hexA(TH.mid)); g.addColorStop(1, hexA(TH.orbs[3])); x.fillStyle = g; x.fillRect(X, Y, W, H); x.fillStyle = 'rgba(255,255,255,.75)'; x.font = `${W * .32}px system-ui`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('♪', X + W / 2, Y + H / 2); return; }
   x.drawImage(cv.img, cv.sx, cv.sy, cv.sw, cv.sh, X, Y, W, H);
 }
 function drawCover(x, S, cv) {
@@ -256,23 +314,22 @@ function drawLP(x, S, cv, ang, arm) {
   x.restore();
   x.save(); soft(x, S, .6); circ(x, Bx, By, S * .03); x.fillStyle = W; x.fill(); x.restore();
 }
-function drawTape(x, S, cv, ang, prog, title, artist) {
+function drawTape(x, S, cv, aL, aR, prog, title, artist) {   // aL·aR = 왼쪽·오른쪽 릴 각도(따로 돈다)
   const W = S * .9, H = W * .63, X = (S - W) / 2, Y = (S - H) / 2 - S * .02, rad = W * .028;
-  const P = PAL || [{ hex: '#1f2329', r: 31, g: 35, b: 41, lum: 34 }, { hex: '#33414f' }, { hex: '#4f677d' }, { hex: '#7f98ae' }, { hex: '#e9e6dc', r: 233, g: 230, b: 220, lum: 230 }];
   // 몸체 — 무광, 가는 가로줄 결
   x.save(); soft(x, S, .6); rr(x, X, Y, W, H, rad); x.fillStyle = '#1b1b20'; x.fill(); x.restore();
   x.save(); rr(x, X, Y, W, H, rad); x.clip(); x.fillStyle = 'rgba(255,255,255,.035)'; for (let yy = Y + W * .006; yy < Y + H; yy += W * .0125) x.fillRect(X, yy, W, Math.max(1.5, W * .0038)); x.restore();
   x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; rr(x, X + S * .004, Y + S * .004, W - S * .008, H - S * .008, rad * .8); x.stroke();
   // 스티커
-  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, base = P[0].hex, acc3 = [P[4], P[3], P[2]];   // 종이 = 팔레트 배경색, 띠 = 나머지 중 종이와 밝기 차가 큰 셋
+  const lX = X + W * .055, lY = Y + H * .1, lW = W * .89, lH = H * .6, base = hexA(TH.bg), acc3 = TH.stripes;   // 종이 = 배경색, 띠 = 나머지 중 종이와 밝기 차가 큰 셋
   x.save(); rr(x, lX, lY, lW, lH, S * .01); x.clip(); x.fillStyle = base; x.fillRect(lX, lY, lW, lH);
   const iw = lW * .3; drawImg(x, cv, lX, lY, Math.max(iw, lH), lH);   // 사진 → 스티커 색으로 번짐
   const fd = x.createLinearGradient(lX + iw * .45, 0, lX + iw * 1.05, 0); fd.addColorStop(0, base + '00'); fd.addColorStop(1, base); x.fillStyle = fd; x.fillRect(lX + iw * .45, lY, Math.max(iw, lH), lH);
   // 레트로 띠 — 창 뒤를 가로지르는 굵은 띠 하나 + 얇은 띠 둘, 사진 쪽에서 번져 나온다
   const fx0 = lX + iw * .45, fx1 = lX + iw * 1.05, bT = .37;
-  [[bT, .3], [.68, .06], [.75, .065]].forEach(([v, h], k) => { const c = acc3[k].hex, g = x.createLinearGradient(fx0, 0, fx1, 0); g.addColorStop(0, c + '00'); g.addColorStop(1, c); x.fillStyle = g; x.fillRect(fx0, lY + lH * v, lX + lW - fx0, lH * h); });
+  [[bT, .3], [.68, .06], [.75, .065]].forEach(([v, h], k) => { const c = hexA(acc3[k]), g = x.createLinearGradient(fx0, 0, fx1, 0); g.addColorStop(0, c + '00'); g.addColorStop(1, c); x.fillStyle = g; x.fillRect(fx0, lY + lH * v, lX + lW - fx0, lH * h); });
   // 띠 위 글자 칸을 줄 두 개로 3등분 — 제목은 둘째 줄 위에(윗줄을 넘어가도 된다), 가수는 그 줄 바로 아래. 글자는 가운데 정렬
-  const ink = P[0].lum > 180 ? '#2c3236' : '#edf1f3', tx = lX + iw * 1.02, tR = lX + lW * .965, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
+  const ink = hexA(TH.fg), tx = lX + iw * 1.02, tR = lX + lW * .965, l1 = lY + lH * bT / 3, l2 = lY + lH * bT * 2 / 3;
   x.fillStyle = ink; x.globalAlpha = .28; [l1, l2].forEach(ly => x.fillRect(tx, ly, tR - tx, Math.max(1, S * .0016))); x.globalAlpha = 1;
   const tw = tR - tx; x.textAlign = 'left'; x.textBaseline = 'alphabetic';   // 제목·가수 = 줄 시작점에 왼쪽 정렬
   x.font = `700 ${H * .072}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, title || '레코드룸', tw), tx, l2 - lH * .028);
@@ -285,15 +342,18 @@ function drawTape(x, S, cv, ang, prog, title, artist) {
   x.save(); soft(x, S, .35); rr(x, wX, wY, wW, wH, wH * .22); x.fillStyle = '#0c0c0e'; x.fill(); x.restore();
   const cW = wW * .38, cX = wX + (wW - cW) / 2, cY = wY + wH * .14, cH = wH * .72, rMin = wH * .26, rMax = wW * .3;
   x.save(); rr(x, cX, cY, cW, cH, S * .004); x.clip(); x.fillStyle = 'rgba(255,255,255,.07)'; x.fillRect(cX, cY, cW, cH);
-  [[r1, rMin + (rMax - rMin) * (1 - prog)], [r2, rMin + (rMax - rMin) * prog]].forEach(([c, r]) => { circ(x, c, ry, r); x.fillStyle = '#2b1f18'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; x.stroke(); });
+  // 테이프 뭉치 — 감긴 길이(넓이)가 진행에 비례하므로 반지름은 제곱근으로 변한다. 감긴 결을 가는 원으로
+  const pk = Math.max(0, Math.min(1, prog)), rad2 = f => Math.sqrt(rMin * rMin + (rMax * rMax - rMin * rMin) * f);
+  [[r1, rad2(1 - pk)], [r2, rad2(pk)]].forEach(([c, r]) => { circ(x, c, ry, r); x.fillStyle = '#2b1f18'; x.fill(); x.strokeStyle = 'rgba(255,255,255,.06)'; x.lineWidth = S * .002; x.stroke();
+    x.strokeStyle = 'rgba(0,0,0,.28)'; for (let q = r - wH * .05; q > rMin; q -= wH * .07) { circ(x, c, ry, q); x.stroke(); } });
   x.restore(); x.strokeStyle = 'rgba(255,255,255,.1)'; x.lineWidth = S * .002; rr(x, cX, cY, cW, cH, S * .004); x.stroke();
-  const acc = PAL ? P[2].hex : '#7f98ae';
-  [r1, r2].forEach(c => { x.save(); x.translate(c, ry); circ(x, 0, 0, wH * .38); x.fillStyle = '#d9d8d4'; x.fill(); circ(x, 0, 0, wH * .28); x.fillStyle = acc; x.fill(); x.rotate(ang); x.fillStyle = '#f2f1ee';
+  const acc = hexA(TH.mid);
+  [[r1, aL], [r2, aR]].forEach(([c, a]) => { x.save(); x.translate(c, ry); circ(x, 0, 0, wH * .38); x.fillStyle = '#d9d8d4'; x.fill(); circ(x, 0, 0, wH * .28); x.fillStyle = acc; x.fill(); x.rotate(a); x.fillStyle = '#f2f1ee';
     for (let k = 0; k < 6; k++) { x.rotate(Math.PI / 3); rr(x, wH * .2, -wH * .045, wH * .14, wH * .09, wH * .02); x.fill(); } circ(x, 0, 0, wH * .09); x.fillStyle = '#0c0c0e'; x.fill(); x.restore(); });
   // 아래 사다리꼴 — 결 + 구동 구멍 + 나사
   const tY = Y + H * .76; x.save(); x.beginPath(); x.moveTo(X + W * .17, Y + H); x.lineTo(X + W * .22, tY); x.lineTo(X + W * .78, tY); x.lineTo(X + W * .83, Y + H); x.closePath(); x.fillStyle = '#16161a'; x.fill(); x.clip();
   x.fillStyle = 'rgba(255,255,255,.045)'; for (let yy = tY + W * .006; yy < Y + H; yy += W * .0125) x.fillRect(X, yy, W, Math.max(1.5, W * .0038)); x.restore();
-  const holeBg = PAL ? PAL[0].hex : '#1f2329';
+  const holeBg = hexA(TH.bg);
   [[.27, .948, .023], [.365, .925, .017], [.635, .925, .017], [.73, .948, .023]].forEach(([u, v, r]) => { const hx = X + W * u, hy = Y + H * v, hr = W * r;
     circ(x, hx, hy, hr); x.fillStyle = holeBg; x.fill();                                                   // 뒤가 보인다
     x.save(); circ(x, hx, hy, hr); x.clip(); x.strokeStyle = 'rgba(0,0,0,.55)'; x.lineWidth = hr * .55; circ(x, hx, hy + hr * .35, hr * 1.15); x.stroke(); x.restore();   // 위쪽 안벽 그늘
@@ -384,10 +444,10 @@ async function setMyCover(src, keep) {
   const im = await loadImg(src), c = squareCv(im), n = Math.min(720, c.sw), k = document.createElement('canvas'); k.width = k.height = n;
   k.getContext('2d').drawImage(im, c.sx, c.sy, c.sw, c.sh, 0, 0, n, n);
   const d = k.toDataURL('image/jpeg', .86);          // 다른 주소 그림은 여기서 막히면(교차 출처) 오류로 떨어진다
-  myCv = squareCv(await loadImg(d)); applyPalette(extractPalette(myCv)); $('bImgDel').hidden = false;
+  myCv = squareCv(await loadImg(d)); applyPalette(extractPalette(myCv)); $('bImgDel').hidden = false; $('bPic').classList.add('on');
   if (keep) { store.set('mycover', d); if (store.get('mycover') !== d) toast('저장 공간이 부족해 다음에 열면 사라집니다'); }
 }
-function clearMyCover() { myCv = null; store.set('mycover', null); $('bImgDel').hidden = true; if (cover) applyPalette(extractPalette(cover)); toast('기본 커버로 돌아갑니다'); }
+function clearMyCover() { myCv = null; store.set('mycover', null); $('bImgDel').hidden = true; $('bPic').classList.remove('on'); if (cover) applyPalette(extractPalette(cover)); toast('기본 커버로 돌아갑니다'); }
 $('bImg').onclick = () => $('img').click();
 $('img').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const r = new FileReader();
   r.onload = () => setMyCover(r.result, true).then(() => { closeSheets(); toast('커버 사진을 바꿨습니다'); }, () => toast('이 파일은 사진으로 열 수 없습니다')); r.readAsDataURL(f); };
@@ -456,7 +516,7 @@ addEventListener('keydown', e => { if (e.target.tagName === 'INPUT') return; if 
 function openSheet(id) { closeSheets(); $(id).classList.add('open'); $('scrim').classList.add('on'); }
 function closeSheets() { document.querySelectorAll('.sheet').forEach(s => s.classList.remove('open')); $('scrim').classList.remove('on'); }
 $('scrim').onclick = closeSheets;
-$('bClear').onclick = () => { if (!items.length || !confirm(`재생 목록 ${items.length}곡을 모두 지울까요?`)) return; E.pause(); if (ytReady) yt.stopVideo(); A.removeAttribute('src'); items = []; cur = -1; queue = []; cover = null; setPlaying(false); renderList(); showMeta(); save(); closeSheets(); toast('재생 목록을 비웠습니다'); }; $('bAdd').onclick = () => openSheet('sAdd'); $('bList').onclick = () => { renderList(); openSheet('sList'); };
+$('bClear').onclick = () => { if (!items.length || !confirm(`재생 목록 ${items.length}곡을 모두 지울까요?`)) return; E.pause(); if (ytReady) yt.stopVideo(); A.removeAttribute('src'); items = []; cur = -1; queue = []; cover = null; setPlaying(false); renderList(); showMeta(); save(); closeSheets(); toast('재생 목록을 비웠습니다'); }; $('bAdd').onclick = () => openSheet('sAdd'); $('bPic').onclick = () => openSheet('sCover'); $('bList').onclick = () => { renderList(); openSheet('sList'); };
 function renderList() {
   const ul = $('list'); ul.innerHTML = items.length ? '' : '<li style="cursor:default;color:var(--sub)">아직 넣은 노래가 없습니다</li>';
   items.forEach((t, i) => { const li = document.createElement('li'); li.className = (i === cur ? 'cur ' : '') + (t.blocked ? 'blocked' : '');
@@ -468,68 +528,156 @@ function renderList() {
 }
 
 /* ═══ 화면 그리기 — 판은 천천히 돌고, 멈추면 그 자리에 선다 ═══ */
-const art = $('art'), ax = art.getContext('2d'); let ang = 0, spin = 0, arm = 0, last = performance.now();
+const art = $('art'), ax = art.getContext('2d'); let ang = 0, spin = 0, arm = 0, tV = 0, rL = 0, rR = .5, last = performance.now();
+/* 릴: 테이프는 같은 속도로 지나가므로 뭉치가 작은 릴이 빨리 돈다 (각속도 ∝ 1/반지름). Q = (최대/최소 반지름)² − 1 = 3.8² − 1 */
+const REEL_Q = 3.8 * 3.8 - 1, reelSpeed = (fill) => 3 / Math.sqrt(1 + REEL_Q * fill);   // fill = 그 릴에 감긴 비율
 function frame(now) {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
+  lerpTheme(TH, TT, 1 - Math.exp(-dt * 2.6));
   spin += ((playing ? 1 : 0) - spin) * Math.min(1, dt * (playing ? 1.6 : 5)); arm += ((playing ? 1 : 0) - arm) * Math.min(1, dt * 3.2);
+  tV += ((playing ? 1 : 0) - tV) * Math.min(1, dt * (playing ? 2.5 : 6));
   ang += spin * dt * Math.PI * 2 * .3;
   const dpr = Math.min(2, devicePixelRatio || 1), S = Math.round(art.clientWidth * dpr); if (art.width !== S) { art.width = art.height = S; }
   ax.clearRect(0, 0, S, S); const t = items[cur], d = E.dur(), tm = E.time(), pr = d ? Math.min(1, tm / d) : 0;
-  if (mode === 'cover') drawCover(ax, S, pic()); else if (mode === 'lp') drawLP(ax, S, pic(), ang, arm); else drawTape(ax, S, pic(), ang * 1.6, pr, t && t.title, t && t.artist);
+  rL = (rL + tV * dt * reelSpeed(1 - pr)) % (Math.PI * 2); rR = (rR + tV * dt * reelSpeed(pr)) % (Math.PI * 2);
+  if (mode === 'cover') drawCover(ax, S, pic()); else if (mode === 'lp') drawLP(ax, S, pic(), ang, arm); else drawTape(ax, S, pic(), rL, rR, pr, t && t.title, t && t.artist);
   if (!dragging && cur >= 0) { seek.value = Math.round(pr * 1000); seek.style.setProperty('--p', pr * 100 + '%'); $('tCur').textContent = fmtT(tm); $('tDur').textContent = fmtT(d); }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 
-/* ═══ 움직이는 카드 저장 — WebP(기본) / GIF(아이폰 등 WebP를 못 만드는 브라우저) ═══ */
+/* ═══ 움직이는 카드 저장 — MP4(인스타그램 스토리·당근) / WebP / GIF, 5·10·15초 ═══ */
 const canWebP = (() => { try { const c = document.createElement('canvas'); c.width = c.height = 2; return c.toDataURL('image/webp').startsWith('data:image/webp'); } catch (e) { return false; } })();
-let fmt = canWebP ? 'webp' : 'gif', outBlob = null;
-function syncFmt() { document.querySelectorAll('#fmt button').forEach(b => { b.classList.toggle('on', b.dataset.f === fmt); b.setAttribute('aria-checked', b.dataset.f === fmt); if (b.dataset.f === 'webp') b.disabled = !canWebP; }); $('fmtHint').textContent = canWebP ? 'WebP는 GIF보다 선명하고 가볍습니다. 카카오톡·인스타그램에는 GIF가 더 잘 움직일 수 있습니다.' : '이 브라우저(아이폰·아이패드 등)는 WebP를 만들 수 없어 GIF로 저장합니다.'; }
-document.querySelectorAll('#fmt button').forEach(b => b.onclick = () => { if (!b.disabled) { fmt = b.dataset.f; syncFmt(); } });
+// H.264 Baseline: B프레임이 없어 MP4에 재생 순서 표(ctts)가 필요 없다. 레벨은 높은 것부터
+const AVC = ['avc1.42002a', 'avc1.420028', 'avc1.42001f'];
+let mp4Codec = null;
+const mp4Ready = (async () => { if (!('VideoEncoder' in window) || !('VideoFrame' in window)) return;
+  for (const codec of AVC) { try { const r = await VideoEncoder.isConfigSupported({ codec, width: 720, height: 1280, bitrate: 5e6, framerate: 30, avc: { format: 'avc' } }); if (r.supported) { mp4Codec = codec; return; } } catch (e) {} } })();
+const fmtOk = f => f === 'mp4' ? !!mp4Codec : f === 'webp' ? canWebP : f === 'gif';
+let fmt = store.get('cardfmt', 'mp4'), cardSec = [5, 10, 15].includes(store.get('cardsec', 5)) ? store.get('cardsec', 5) : 5, outBlob = null, outFmt = 'mp4';
+const HINT = { mp4: '인스타그램 스토리·당근에는 MP4로 올립니다. 움직이는 그림(GIF·WebP)은 거기서 올라가지 않거나 멈춘 사진이 됩니다.',
+  webp: 'WebP는 GIF보다 선명하고 가볍습니다. 카카오톡에는 GIF가 더 잘 움직일 수 있습니다.',
+  gif: 'GIF는 어디서나 열리지만 색이 거칠고 파일이 큽니다. 10초·15초는 몇 MB가 됩니다.' };
+function syncFmt() {
+  if (!fmtOk(fmt)) fmt = ['mp4', 'webp', 'gif'].find(fmtOk);
+  document.querySelectorAll('#fmt button').forEach(b => { const on = b.dataset.f === fmt; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); b.disabled = !fmtOk(b.dataset.f); });
+  document.querySelectorAll('#dur button').forEach(b => { const on = +b.dataset.s === cardSec; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+  $('bMake').textContent = `지금 화면으로 저장 (${cardSec}초)`;
+  $('fmtHint').textContent = HINT[fmt] + (mp4Codec ? '' : ' 이 브라우저는 MP4를 만들 수 없습니다 — 최신 크롬·사파리에서 열어 주세요.');
+}
+document.querySelectorAll('#fmt button').forEach(b => b.onclick = () => { if (!b.disabled) { fmt = b.dataset.f; store.set('cardfmt', fmt); syncFmt(); } });
+document.querySelectorAll('#dur button').forEach(b => b.onclick = () => { cardSec = +b.dataset.s; store.set('cardsec', cardSec); syncFmt(); });
 let cardCtl = store.get('cardctl', false);   // 카드에 조작 버튼을 그릴지 — 기본은 없음, 마지막 선택 기억
 function syncCtl() { document.querySelectorAll('#ctl button').forEach(b => { const on = (b.dataset.c === '1') === cardCtl; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); }); }
 document.querySelectorAll('#ctl button').forEach(b => b.onclick = () => { cardCtl = b.dataset.c === '1'; store.set('cardctl', cardCtl); syncCtl(); });
-$('bSave').onclick = () => { if (cur < 0) { toast('먼저 노래를 넣어 주세요'); return; } syncFmt(); syncCtl(); $('outRow').style.display = 'none'; $('preview').style.display = 'none'; openSheet('sSave'); };
-function drawCard(x, W, H, ph) {                  // ph: 0~1 한 바퀴
-  const p = PAL || [{ hex: '#1f2329', lum: 30 }, { hex: '#33414f' }, { hex: '#4f677d' }, { hex: '#7f98ae' }, { hex: '#b9c9d6' }], light = p[0].lum > 180, fg = light ? '#2C3236' : '#EDF1F3';
-  x.fillStyle = p[0].hex; x.fillRect(0, 0, W, H);
-  p.slice(1).forEach((c, i) => { const a = ph * Math.PI * 2 + i * 1.7, cx = W * (.5 + .38 * Math.cos(a + i)), cy = H * (.45 + .32 * Math.sin(a * (i % 2 ? 1 : -1) + i * 2)), r = Math.max(W, H) * .55; const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, c.hex + '66'); g.addColorStop(1, c.hex + '00'); x.fillStyle = g; x.fillRect(0, 0, W, H); });
+$('bSave').onclick = async () => { if (cur < 0) { toast('먼저 노래를 넣어 주세요'); return; } await mp4Ready; syncFmt(); syncCtl(); $('outRow').style.display = 'none'; $('preview').hidden = $('previewV').hidden = true; openSheet('sSave'); };
+const IC = { shuffle: 'M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z',
+  repeat: 'M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z', prev: 'M6 5h2v14H6zM20 5v14L9 12z', next: 'M16 5h2v14h-2zM4 5v14l11-7z', pause: 'M7 5h4v14H7zM13 5h4v14h-4z' };
+function drawCard(x, W, H, ph, k) {               // ph: 0~1 클립 전체, k: 그동안 도는 바퀴 수 — 정수라 끝과 처음이 이어진다
+  const th = TT, fg = hexA(th.fg), sub = rgbaA(th.fg, th.subA.toFixed(2)), a = ph * k * Math.PI * 2;
+  x.fillStyle = hexA(th.bg); x.fillRect(0, 0, W, H);
+  th.orbs.forEach((c, i) => { const ai = a + i * Math.PI / 2, cx = W * (.5 + .3 * Math.cos(ai + i)), cy = H * (.18 + .2 * i) + W * .1 * Math.sin(ai), r = W * .62, al = i === 3 ? .35 : .5;
+    const g = x.createRadialGradient(cx, cy, 0, cx, cy, r); g.addColorStop(0, rgbaA(c, al)); g.addColorStop(.55, rgbaA(c, al * .45)); g.addColorStop(1, rgbaA(c, 0)); x.fillStyle = g; x.fillRect(0, 0, W, H); });
   const S = W * .86, oX = (W - S) / 2, oY = H * .1, t = items[cur], d = E.dur(), pr = d ? Math.min(1, E.time() / d) : .35;
   x.save(); x.translate(oX, oY);
-  if (mode === 'cover') drawCover(x, S, pic()); else if (mode === 'lp') drawLP(x, S, pic(), ph * Math.PI * 2, 1); else drawTape(x, S, pic(), ph * Math.PI * 4, pr, t && t.title, t && t.artist);
+  if (mode === 'cover') drawCover(x, S, pic());
+  else if (mode === 'lp') drawLP(x, S, pic(), a, 1);
+  else { const sM = reelSpeed(.5), n = sp => Math.max(1, Math.round(2 * sp / sM));   // 릴마다 다른 정수 바퀴 — 화면처럼 뭉치가 작은 쪽이 빠르다
+    drawTape(x, S, pic(), rL + a * n(reelSpeed(1 - pr)), rR + a * n(reelSpeed(pr)), pr, t && t.title, t && t.artist); }
   x.restore();
   const mx = W * .08, ty = oY + S + H * .06; x.fillStyle = fg; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
   x.font = `700 ${W * .06}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, (t && t.title) || '', W - mx * 2), mx, ty);
-  x.globalAlpha = .65; x.font = `500 ${W * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, (t && t.artist) || '', W - mx * 2), mx, ty + W * .065); x.globalAlpha = 1;
-  const by = ty + W * .14; x.fillStyle = light ? 'rgba(44,50,54,.18)' : 'rgba(237,241,243,.25)'; rr(x, mx, by, W - mx * 2, W * .008, W * .004); x.fill(); x.fillStyle = fg; rr(x, mx, by, (W - mx * 2) * pr, W * .008, W * .004); x.fill();
+  x.fillStyle = sub; x.font = `500 ${W * .04}px system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif`; x.fillText(fit(x, (t && t.artist) || '', W - mx * 2), mx, ty + W * .065);
+  const by = ty + W * .14; x.fillStyle = rgbaA(th.fg, .22); rr(x, mx, by, W - mx * 2, W * .008, W * .004); x.fill(); x.fillStyle = fg; rr(x, mx, by, (W - mx * 2) * pr, W * .008, W * .004); x.fill();
   x.beginPath(); x.arc(mx + (W - mx * 2) * pr, by + W * .004, W * .014, 0, 7); x.fill();
-  x.globalAlpha = .65; x.font = `500 ${W * .03}px system-ui`; x.fillText(fmtT(pr * d), mx, by + W * .055); x.textAlign = 'right'; x.fillText(fmtT(d), W - mx, by + W * .055); x.globalAlpha = 1;
+  x.fillStyle = sub; x.font = `500 ${W * .03}px system-ui`; x.fillText(fmtT(pr * d), mx, by + W * .055); x.textAlign = 'right'; x.fillText(fmtT(d), W - mx, by + W * .055);
   // 조작 줄(고를 때만) — 화면과 같은 아이콘. 섞기·반복은 꺼진 모습, 가운데는 재생 중(일시정지 모양). 소리 크기는 넣지 않는다
   if (!cardCtl) return;
-  const cy = by + W * .2, sm = W * .062, md = W * .072, bR = W * .1, ic = (d, cx, sz, col, line) => { x.save(); x.translate(cx - sz / 2, cy - sz / 2); x.scale(sz / 24, sz / 24); const pth = new Path2D(d);
-    if (line) { x.strokeStyle = col; x.lineWidth = 2; x.lineCap = x.lineJoin = 'round'; x.stroke(pth); } else { x.fillStyle = col; x.fill(pth); } x.restore(); }, off = light ? 'rgba(44,50,54,.6)' : 'rgba(237,241,243,.6)';
-  ic('M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5', mx + sm / 2, sm, off, 1);
-  ic('M6 5h2v14H6zM20 5v14L9 12z', W * .3, md, fg);
-  x.fillStyle = fg; x.beginPath(); x.arc(W / 2, cy, bR, 0, 7); x.fill(); ic('M7 5h4v14H7zM13 5h4v14h-4z', W / 2, W * .085, p[0].hex);
-  ic('M16 5h2v14h-2zM4 5v14l11-7z', W * .7, md, fg);
-  ic('M17 2l4 4-4 4M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v1a4 4 0 0 1-4 4H3', W - mx - sm / 2, sm, off, 1);
+  const cy = by + W * .2, sm = W * .062, md = W * .072, bR = W * .1, ic = (n, cx, sz, col) => { x.save(); x.translate(cx - sz / 2, cy - sz / 2); x.scale(sz / 24, sz / 24); x.fillStyle = col; x.fill(new Path2D(IC[n])); x.restore(); }, off = rgbaA(th.fg, .6);
+  ic('shuffle', mx + sm / 2, sm, off); ic('prev', W * .3, md, fg);
+  x.fillStyle = fg; x.beginPath(); x.arc(W / 2, cy, bR, 0, 7); x.fill(); ic('pause', W / 2, W * .085, hexA(th.bg));
+  ic('next', W * .7, md, fg); ic('repeat', W - mx - sm / 2, sm, off);
 }
+const tick = () => new Promise(r => setTimeout(r, 0));
+// 장마다 시간을 나눠 정확히 sec초가 되게 (반올림 오차를 누적하지 않는다)
+const spans = (N, total) => Array.from({ length: N }, (_, i) => Math.round((i + 1) * total / N) - Math.round(i * total / N));
 $('bMake').onclick = async () => {
-  const N = 48, gif = fmt === 'gif', W = gif ? 360 : 720, H = Math.round(W * 16 / 9), c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: true });
-  $('prog').style.display = 'block'; $('bMake').disabled = true; const bar = $('prog').firstElementChild, tick = () => new Promise(r => setTimeout(r, 0));
+  const f = fmt, sec = cardSec, k = Math.max(1, Math.round(sec / 4)), gif = f === 'gif', mp4 = f === 'mp4';
+  const W = gif ? 360 : 720, H = Math.round(W * 16 / 9), fps = mp4 ? 30 : 12, N = sec * fps;
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d', { willReadFrequently: gif });
+  TH = JSON.parse(JSON.stringify(TT));
+  $('prog').style.display = 'block'; $('bMake').disabled = true; const bar = $('prog').firstElementChild, onp = p => { bar.style.width = p * 100 + '%'; };
+  const draw = i => drawCard(x, W, H, i / N, k);
   try {
-    if (gif) { const fr = []; for (let i = 0; i < N; i++) { drawCard(x, W, H, i / N); fr.push(x.getImageData(0, 0, W, H)); bar.style.width = (i / N * 50) + '%'; if (i % 4 === 0) await tick(); } outBlob = await gifEncode(fr, W, H, 8, p => bar.style.width = (50 + p * 50) + '%'); }
-    else { const fr = []; for (let i = 0; i < N; i++) { drawCard(x, W, H, i / N); const du = c.toDataURL('image/webp', .86), bin = atob(du.slice(du.indexOf(',') + 1)), u8 = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) u8[k] = bin.charCodeAt(k); fr.push(new Blob([u8])); bar.style.width = ((i + 1) / N * 100) + '%'; await tick(); } outBlob = await webpAnim(fr, W, H, 83); }
-    $('preview').src = URL.createObjectURL(outBlob); $('preview').style.display = 'block'; $('outRow').style.display = 'flex'; toast(`${(outBlob.size / 1048576).toFixed(1)}MB ${gif ? 'GIF' : 'WebP'}를 만들었습니다`);
+    if (mp4) outBlob = await mp4Encode(c, N, fps, draw, onp);
+    else if (gif) outBlob = await gifEncode(x, W, H, N, draw, spans(N, sec * 100), onp);
+    else { const fr = []; for (let i = 0; i < N; i++) { draw(i); fr.push(await new Promise((ok, no) => c.toBlob(b => b ? ok(b) : no(new Error('WebP')), 'image/webp', .86))); onp((i + 1) / N); } outBlob = await webpAnim(fr, W, H, spans(N, sec * 1000)); }
+    showOut(f); toast(`${(outBlob.size / 1048576).toFixed(1)}MB ${f.toUpperCase()}를 만들었습니다`);
   } catch (e) { toast('만들지 못했습니다: ' + e.message); }
   $('bMake').disabled = false; $('prog').style.display = 'none'; bar.style.width = 0;
 };
-const outName = () => `레코드룸-${((items[cur] && items[cur].title) || 'card').replace(/[\\/:*?"<>|]/g, '').slice(0, 40)}.${fmt}`;
+function showOut(f) {
+  const im = $('preview'), v = $('previewV'); [im.src, v.src].forEach(u => { if (u && u.startsWith('blob:')) URL.revokeObjectURL(u); });
+  const url = URL.createObjectURL(outBlob); outFmt = f; im.hidden = f === 'mp4'; v.hidden = f !== 'mp4';
+  if (f === 'mp4') { im.removeAttribute('src'); v.src = url; v.play().catch(() => {}); } else { v.removeAttribute('src'); im.src = url; }
+  $('outRow').style.display = 'flex';
+}
+const outName = () => `레코드룸-${((items[cur] && items[cur].title) || 'card').replace(/[\\/:*?"<>|]/g, '').slice(0, 40)}.${outFmt}`;
 $('bShare').onclick = async () => { if (!outBlob) return; const f = new File([outBlob], outName(), { type: outBlob.type });
   if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: '레코드룸' }); } catch (e) {} } else { toast('이 기기는 바로 공유를 지원하지 않아 저장합니다'); $('bDown').click(); } };
 $('bDown').onclick = () => { if (!outBlob) return; const a = document.createElement('a'); a.href = URL.createObjectURL(outBlob); a.download = outName(); document.body.appendChild(a); a.click(); a.remove(); };
 
-/* 움직이는 WebP — 캔버스가 만든 낱장 WebP를 한 파일로 묶는다 (RIFF · VP8X · ANIM · ANMF) */
+/* MP4 — 브라우저의 H.264 인코더(WebCodecs)로 장을 압축하고, 상자(ftyp·moov·mdat)를 직접 쌓는다.
+   moov를 앞에 두어(faststart) 받자마자 재생되고, 업로드하는 곳이 거절하지 않는 일반 MP4 */
+async function mp4Encode(c, N, fps, draw, onp) {
+  const samples = []; let desc = null, err = null;
+  const enc = new VideoEncoder({ output: (ch, meta) => { const d = meta && meta.decoderConfig && meta.decoderConfig.description;
+      if (d) desc = new Uint8Array(ArrayBuffer.isView(d) ? d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength) : d.slice(0));
+      const b = new Uint8Array(ch.byteLength); ch.copyTo(b); samples.push({ b, key: ch.type === 'key' }); }, error: e => { err = e; } });
+  enc.configure({ codec: mp4Codec, width: c.width, height: c.height, bitrate: 5e6, framerate: fps, avc: { format: 'avc' } });
+  for (let i = 0; i < N; i++) {
+    if (err) throw err;
+    draw(i); const fr = new VideoFrame(c, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
+    enc.encode(fr, { keyFrame: i % fps === 0 }); fr.close(); onp((i + 1) / N);
+    while (enc.encodeQueueSize > 4) await new Promise(r => setTimeout(r, 4));
+    if (i % 3 === 0) await tick();
+  }
+  await enc.flush(); enc.close(); if (err) throw err;
+  if (!desc || !samples.length) throw new Error('H.264 인코딩 결과가 없습니다');
+  return mp4Mux(samples, desc, c.width, c.height, fps);
+}
+function mp4Mux(samples, avcC, W, H, fps) {
+  const u32 = n => [n >>> 24 & 255, n >>> 16 & 255, n >>> 8 & 255, n & 255], u16 = n => [n >> 8 & 255, n & 255], s4 = s => [...s].map(ch => ch.charCodeAt(0));
+  const box = (type, ...parts) => { const bs = parts.map(p => p instanceof Uint8Array ? p : new Uint8Array(p)), n = 8 + bs.reduce((a, b) => a + b.length, 0), o = new Uint8Array(n);
+    o.set([...u32(n), ...s4(type)]); let k = 8; for (const b of bs) { o.set(b, k); k += b.length; } return o; };
+  const full = (type, v, fl, ...parts) => box(type, [v, fl >> 16 & 255, fl >> 8 & 255, fl & 255], ...parts);
+  const N = samples.length, TS = fps * 1000, dur = Math.round(N * 1000 / fps);   // 영상 시간 단위 = 1/(fps·1000)초, 한 장 = 1000
+  const matrix = [...u32(0x10000), ...u32(0), ...u32(0), ...u32(0), ...u32(0x10000), ...u32(0), ...u32(0), ...u32(0), ...u32(0x40000000)];
+  const keys = samples.map((s, i) => s.key ? i + 1 : 0).filter(Boolean), size = samples.reduce((a, s) => a + s.b.length, 0);
+  const moov = off => box('moov',
+    full('mvhd', 0, 0, [...u32(0), ...u32(0), ...u32(1000), ...u32(dur), ...u32(0x10000), ...u16(0x100), 0, 0, ...u32(0), ...u32(0), ...matrix, ...new Array(24).fill(0), ...u32(2)]),
+    box('trak',
+      full('tkhd', 0, 3, [...u32(0), ...u32(0), ...u32(1), ...u32(0), ...u32(dur), ...u32(0), ...u32(0), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...matrix, ...u32(W * 65536), ...u32(H * 65536)]),
+      box('mdia',
+        full('mdhd', 0, 0, [...u32(0), ...u32(0), ...u32(TS), ...u32(N * 1000), ...u16(0x55C4), ...u16(0)]),
+        full('hdlr', 0, 0, [...u32(0), ...s4('vide'), ...u32(0), ...u32(0), ...u32(0), ...s4('VideoHandler'), 0]),
+        box('minf',
+          full('vmhd', 0, 1, [...u16(0), ...u16(0), ...u16(0), ...u16(0)]),
+          box('dinf', full('dref', 0, 0, u32(1), full('url ', 0, 1))),
+          box('stbl',
+            full('stsd', 0, 0, u32(1), box('avc1', [0, 0, 0, 0, 0, 0, ...u16(1), ...u16(0), ...u16(0), ...u32(0), ...u32(0), ...u32(0), ...u16(W), ...u16(H),
+              ...u32(0x480000), ...u32(0x480000), ...u32(0), ...u16(1), ...new Array(32).fill(0), ...u16(0x18), ...u16(0xffff)], box('avcC', avcC))),
+            full('stts', 0, 0, [...u32(1), ...u32(N), ...u32(1000)]),
+            full('stss', 0, 0, [...u32(keys.length), ...keys.flatMap(u32)]),
+            full('stsc', 0, 0, [...u32(1), ...u32(1), ...u32(N), ...u32(1)]),
+            full('stsz', 0, 0, [...u32(0), ...u32(N), ...samples.flatMap(s => u32(s.b.length))]),
+            full('stco', 0, 0, [...u32(1), ...u32(off)]))))));
+  const ftyp = box('ftyp', s4('isom'), u32(512), s4('isom'), s4('iso2'), s4('avc1'), s4('mp41'));
+  const off = ftyp.length + moov(0).length + 8;   // 장 데이터가 시작하는 곳 = ftyp + moov + mdat 머리
+  return new Blob([ftyp, moov(off), new Uint8Array([...u32(size + 8), ...s4('mdat')]), ...samples.map(s => s.b)], { type: 'video/mp4' });
+}
+
+/* 움직이는 WebP — 캔버스가 만든 낱장 WebP를 한 파일로 묶는다 (RIFF · VP8X · ANIM · ANMF). ms = 장마다 시간 */
 async function webpAnim(blobs, W, H, ms) {
   const le = (n, b) => { const a = []; for (let i = 0; i < b; i++) a.push((n >> (8 * i)) & 255); return a; }, s4 = s => [...s].map(c => c.charCodeAt(0));
   const frames = []; let alpha = false;
@@ -538,25 +686,29 @@ async function webpAnim(blobs, W, H, ms) {
       if (id === 'VP8 ' || id === 'VP8L' || id === 'ALPH') { parts.push(u.subarray(o, end)); if (id === 'ALPH') alpha = true; } o = end; }
     frames.push(parts); }
   const chunks = [new Uint8Array([...s4('VP8X'), ...le(10, 4), 0x02 | (alpha ? 0x10 : 0), 0, 0, 0, ...le(W - 1, 3), ...le(H - 1, 3)]), new Uint8Array([...s4('ANIM'), ...le(6, 4), 0, 0, 0, 0, 0, 0])];
-  for (const parts of frames) { const len = 16 + parts.reduce((a, p) => a + p.length, 0); chunks.push(new Uint8Array([...s4('ANMF'), ...le(len, 4), 0, 0, 0, 0, 0, 0, ...le(W - 1, 3), ...le(H - 1, 3), ...le(ms, 3), 0x02]), ...parts); if (len & 1) chunks.push(new Uint8Array([0])); }
+  frames.forEach((parts, fi) => { const len = 16 + parts.reduce((a, p) => a + p.length, 0); chunks.push(new Uint8Array([...s4('ANMF'), ...le(len, 4), 0, 0, 0, 0, 0, 0, ...le(W - 1, 3), ...le(H - 1, 3), ...le(ms[fi], 3), 0x02]), ...parts); if (len & 1) chunks.push(new Uint8Array([0])); });
   const body = chunks.reduce((a, c) => a + c.length, 0) + 4;
   return new Blob([new Uint8Array([...s4('RIFF'), ...le(body, 4), ...s4('WEBP')]), ...chunks], { type: 'image/webp' });
 }
-/* GIF — 전체 팔레트(MMCQ 255색) + LZW */
-async function gifEncode(frames, W, H, delay, onp) {
-  const samp = []; frames.forEach((f, k) => { if (k % 6) return; for (let i = 0; i < f.data.length; i += 4 * 29) samp.push([f.data[i], f.data[i + 1], f.data[i + 2]]); });
+/* GIF — 전체 팔레트(회색 24단 + MMCQ 231색 + 투명 1칸) + LZW. 장을 그리는 즉시 압축해 15초도 메모리에 다 들고 있지 않는다.
+   앞 장과 같은 점은 투명으로 남겨 파일을 줄인다 */
+async function gifEncode(x, W, H, N, draw, delays, onp) {
+  const samp = []; for (const i of [0, N >> 2, N >> 1, (3 * N) >> 2]) { draw(i); const d = x.getImageData(0, 0, W, H).data; for (let j = 0; j < d.length; j += 4 * 29) samp.push([d[j], d[j + 1], d[j + 2]]); }
   const pal = []; for (let i = 0; i < 24; i++) { const v = Math.round(i * 255 / 23); pal.push([v, v, v]); }   // 흰 글씨·검은 판이 회색으로 뭉개지지 않게 회색 사다리를 먼저
-  pal.push(...mmcq(samp, 232).slice(0, 232)); while (pal.length < 256) pal.push([0, 0, 0]);
-  const cache = new Int16Array(32768).fill(-1), near = (r, g, b) => { const k = (r >> 3) << 10 | (g >> 3) << 5 | b >> 3; if (cache[k] >= 0) return cache[k]; let bi = 0, bd = 1e9; for (let i = 0; i < 256; i++) { const p = pal[i], d = (p[0] - r) ** 2 + (p[1] - g) ** 2 + (p[2] - b) ** 2; if (d < bd) { bd = d; bi = i; } } return (cache[k] = bi); };
-  const out = []; const w16 = n => out.push(n & 255, n >> 8 & 255);
+  pal.push(...mmcq(samp, 231).slice(0, 231)); while (pal.length < 256) pal.push([0, 0, 0]);   // 255번 = 투명
+  const cache = new Int16Array(32768).fill(-1), near = (r, g, b) => { const k = (r >> 3) << 10 | (g >> 3) << 5 | b >> 3; if (cache[k] >= 0) return cache[k]; let bi = 0, bd = 1e9; for (let i = 0; i < 255; i++) { const p = pal[i], d = (p[0] - r) ** 2 + (p[1] - g) ** 2 + (p[2] - b) ** 2; if (d < bd) { bd = d; bi = i; } } return (cache[k] = bi); };
+  const out = { buf: new Uint8Array(1 << 21), n: 0, push(...a) { for (const v of a) { if (this.n === this.buf.length) { const nb = new Uint8Array(this.n * 2); nb.set(this.buf); this.buf = nb; } this.buf[this.n++] = v; } } };
+  const w16 = n => out.push(n & 255, n >> 8 & 255);
   out.push(...[...'GIF89a'].map(c => c.charCodeAt(0))); w16(W); w16(H); out.push(0xF7, 0, 0); pal.forEach(p => out.push(p[0], p[1], p[2]));
   out.push(0x21, 0xFF, 0x0B, ...[...'NETSCAPE2.0'].map(c => c.charCodeAt(0)), 3, 1, 0, 0, 0);
-  for (let f = 0; f < frames.length; f++) {
-    const d = frames[f].data, idx = new Uint8Array(W * H); for (let i = 0, j = 0; i < idx.length; i++, j += 4) idx[i] = near(d[j], d[j + 1], d[j + 2]);
-    out.push(0x21, 0xF9, 4, 0x04); w16(delay); out.push(0, 0); out.push(0x2C); w16(0); w16(0); w16(W); w16(H); out.push(0);
-    lzw(idx, 8, out); onp && onp((f + 1) / frames.length); if (f % 3 === 0) await new Promise(r => setTimeout(r, 0));
+  let prev = null;
+  for (let f = 0; f < N; f++) {
+    draw(f); const d = x.getImageData(0, 0, W, H).data, idx = new Uint8Array(W * H); for (let i = 0, j = 0; i < idx.length; i++, j += 4) idx[i] = near(d[j], d[j + 1], d[j + 2]);
+    const img = prev ? idx.map((v, i) => v === prev[i] ? 255 : v) : idx; prev = idx;
+    out.push(0x21, 0xF9, 4, 0x05); w16(delays[f]); out.push(255, 0); out.push(0x2C); w16(0); w16(0); w16(W); w16(H); out.push(0);
+    lzw(img, 8, out); onp((f + 1) / N); if (f % 2 === 0) await tick();
   }
-  out.push(0x3B); return new Blob([new Uint8Array(out)], { type: 'image/gif' });
+  out.push(0x3B); return new Blob([out.buf.subarray(0, out.n)], { type: 'image/gif' });
 }
 function lzw(idx, min, out) {                     // omggif와 같은 순서로 코드 크기를 키운다
   out.push(min); const clear = 1 << min, eoi = clear + 1; let size = min + 1, next = eoi + 1, dict = new Map(), buf = 0, bits = 0, block = [];
@@ -578,8 +730,8 @@ if (hv.get('mode')) { mode = hv.get('mode'); syncButtons(); }
 if (hv.get('v')) items = [{ type: 'yt', id: hv.get('v') }].concat(items.filter(t => t.id !== hv.get('v')));
 items.forEach(t => { if (!t.title) ytMeta(t); });
 if (items.length) { buildQueue(false); load(0, false); }
-if (hv.has('selftest')) setTimeout(async () => {          // 개발용: #v=…&selftest=gif|webp → 결과를 base64로 DOM에
-  fmt = hv.get('selftest'); await $('bMake').onclick(); const r = new FileReader(); r.onload = () => { const pre = document.createElement('pre'); pre.id = 'selftest'; pre.textContent = r.result; document.body.appendChild(pre); }; r.readAsDataURL(outBlob);
+if (hv.has('selftest')) setTimeout(async () => {          // 개발용: #v=…&selftest=mp4|gif|webp[&sec=5] → 결과를 base64로 DOM에
+  await mp4Ready; fmt = hv.get('selftest'); if (hv.get('sec')) cardSec = +hv.get('sec'); await $('bMake').onclick(); const r = new FileReader(); r.onload = () => { const pre = document.createElement('pre'); pre.id = 'selftest'; pre.textContent = r.result; document.body.appendChild(pre); }; r.readAsDataURL(outBlob);
 }, 3000);
 </script>
 </body></html>
